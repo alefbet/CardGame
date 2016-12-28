@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 namespace MonoGame.Ruge.CardEngine {
     
@@ -211,6 +212,37 @@ namespace MonoGame.Ruge.CardEngine {
             if (update) UpdatePositions();
         }
 
+       
+        public void insertCardAfter(Card card, Card insertAfter, bool update=false)
+        {
+            if (card.stack != null)
+            {
+                card.stack.cards.Remove(card);
+                card.stack.NukeParents(card);
+            }
+            card.stack = this;
+                      
+
+            int indexOfinsertAfter = cards.IndexOf(insertAfter);
+
+            
+            //if (indexOfinsertAfter != 0)
+            //{ 
+            //    card.Child = cards[indexOfinsertAfter].Child;                
+            //}
+            //cards[indexOfinsertAfter].Child = card;
+            cards.Insert(indexOfinsertAfter, card);
+
+            card.ZIndex = indexOfinsertAfter + 1;
+
+            
+            int i = 1;
+
+            foreach (var fixIndex in cards) fixIndex.ZIndex = i++;
+
+            if (update) UpdatePositions();
+        }
+
         /// <summary>
         /// you'll want to call this if you're using crunching.
         /// todo: this code really could use some clean-up
@@ -322,12 +354,21 @@ namespace MonoGame.Ruge.CardEngine {
             if (cards.Count > 0) {
 
                 Card top = topCard();
+                String word = "";
+                int wordScore = 0;                
+                bool isWordStack = (top.cardType.deckType == DeckType.word);                
+                
+
                 string strFaceUp = top.isFaceUp ? "face up" : "face down";
                 Debug.WriteLine("top " + "z" + top.ZIndex.ToString("00") + ": " + top.rank + " of " + top.suit + " (" + strFaceUp + ")");
 
 
                 foreach (var card in cards) {
-
+                    if (isWordStack)
+                    {
+                        word += card.wordValue;
+                        wordScore += card.wordPoints;
+                    }
                     strFaceUp = (card.isFaceUp ? "face up" : "face down");
                     Debug.Write("z" + card.ZIndex.ToString("00") + ": " + card.rank + " of " + card.suit + " (" + strFaceUp + ")");
                     Debug.Write(" - " + card.stack.name);
@@ -338,8 +379,16 @@ namespace MonoGame.Ruge.CardEngine {
                         card.Child.rank + " of " + card.Child.suit + " (" + strFaceUp + ")");
                     }
 
-                    Debug.WriteLine();
+                    Debug.WriteLine("");
                 }
+
+                if (isWordStack)
+                {
+                    Debug.WriteLine("Word: " + word);
+                    Debug.WriteLine("Score: " + wordScore);
+                    Debug.WriteLine("ValidWord: " + false);
+                }
+
             }
             else { Debug.WriteLine("(empty stack)"); }
 

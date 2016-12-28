@@ -56,6 +56,7 @@ namespace MonoGame.Ruge.CardEngine {
         public Stack stack { get; set; }
         public int ZIndex { get; set; } = 1;
 
+        public Stack previousStack { get; set; }
         /*
         private FlipState flipAnimating = FlipState.none;
         private Rectangle flipRect;
@@ -68,6 +69,7 @@ namespace MonoGame.Ruge.CardEngine {
         public bool snap = true;
         public float snapTime = .7f;
         
+        public bool allowsSelection = true;
 
         // this seems hacky, need to come up with a better solution.
         public bool render = true;
@@ -118,6 +120,8 @@ namespace MonoGame.Ruge.CardEngine {
         public bool isFaceUp = false;
         public Enum suit;
         public Enum rank;
+        public String wordValue;
+        public int wordPoints;
 
         public Card(DeckType deckType, Enum suit, Enum rank, Texture2D cardBack, SpriteBatch spriteBatch) {
 
@@ -237,6 +241,7 @@ namespace MonoGame.Ruge.CardEngine {
             if (newStack.Count == 0) newStack.addCard(this, true);
 
         }
+        
 
 
 
@@ -249,7 +254,18 @@ namespace MonoGame.Ruge.CardEngine {
             parent.stack.addCard(this, true);
 
         }
-        
+
+        public void InsertAfter(Card parent)
+        {
+
+            var s = new SaveEvent { stack = stack };
+            Save?.Invoke(this, s);
+
+            parent.Child = this;
+            parent.stack.insertCardAfter(this, parent, true);
+
+        }
+
         #region events
 
         public event EventHandler Selected;

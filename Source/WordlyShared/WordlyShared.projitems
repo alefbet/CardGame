@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>2221f684-735f-4d25-88cd-221decf52952</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>WordGame</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CheckValidWords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MainGame.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SolitaireGame.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MainScreen.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SplashScreen.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\A Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\B Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\C Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\D Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\E Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\F Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\G Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\H Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\I Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\J Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\K Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\L Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\M Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\N Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\O Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\P Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\Q Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\R Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\S Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\T Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\U Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\V Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\W Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\X Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\Y Words.csv" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\Z Words.csv" />
+  </ItemGroup>
+</Project>

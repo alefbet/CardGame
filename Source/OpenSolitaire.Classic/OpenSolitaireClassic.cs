@@ -38,13 +38,13 @@ namespace OpenSolitaire.Classic {
 
         BoxingViewportAdapter viewport;
 
-        const int WINDOW_WIDTH = 1035;
-        const int WINDOW_HEIGHT = 666;
+        const int WINDOW_WIDTH = 1980;
+        const int WINDOW_HEIGHT = 1020;
 
-        const int CARD_WIDTH = 125;
-        const int CARD_HEIGHT = 156;
+        const int CARD_WIDTH = 210;
+        const int CARD_HEIGHT = 252;
 
-        Texture2D cardSlot, cardBack, refreshMe, newGame, metaSmug, debug, undo, solve, paused;
+        Texture2D cardSlot, cardBack, refreshMe, newGame, metaSmug, debug, undo, solve, paused, wordSlot;
         Rectangle newGameRect, debugRect, undoRect, solveRect;
         Color newGameColor, debugColor, undoColor, solveColor;
 
@@ -76,7 +76,7 @@ namespace OpenSolitaire.Classic {
 
             // set the screen resolution
             graphics.PreferredBackBufferWidth = WINDOW_WIDTH;
-            graphics.PreferredBackBufferHeight = WINDOW_HEIGHT;
+            graphics.PreferredBackBufferHeight = WINDOW_HEIGHT;            
 
             Window.Title = "Open Solitaire Classic";
             Window.AllowUserResizing = true;
@@ -125,6 +125,7 @@ namespace OpenSolitaire.Classic {
 
             cardSlot = Content.Load<Texture2D>("ui/card_slot");
             cardBack = Content.Load<Texture2D>("deck/card_back_green");
+            wordSlot = Content.Load<Texture2D>("ui/card_slot");
             refreshMe = Content.Load<Texture2D>("ui/refresh");
             newGame = Content.Load<Texture2D>("ui/new_game");
             metaSmug = Content.Load<Texture2D>("ui/smug-logo");
@@ -150,15 +151,17 @@ namespace OpenSolitaire.Classic {
 
 
             // table creates a fresh table.deck
-            table = new TableClassic(this, spriteBatch, dragonDrop, cardBack, cardSlot, 20, 30, soundFX);
+            table = new TableClassic(this, spriteBatch, dragonDrop, cardBack, cardSlot, 50, 20, soundFX);
 
             table.muteSound = Properties.Settings.Default.mute;
 
             // load up the card assets for the new deck
             foreach (var card in table.drawPile.cards) {
-                var location = "deck/" + card.suit + card.rank;
+                var location = "deck/" + card.rank;
                 card.SetTexture(Content.Load<Texture2D>(location));
             }
+
+            
 
             table.InitializeTable();
 
@@ -249,6 +252,8 @@ namespace OpenSolitaire.Classic {
                 if (debugRect.Contains(point)) {
                     debugColor = Color.Aqua;
                     if (click) foreach (var stack in table.stacks) stack.debug();
+
+                //if (click) Debug.WriteLine("Total Score:" + table.TotalScore);
                 }
 #endif
 

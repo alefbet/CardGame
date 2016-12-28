@@ -123,18 +123,27 @@ namespace MonoGame.Ruge.CardEngine {
             }
         }
 
-        public void Draw(GameTime gameTime) {
-            
+        public void Draw(GameTime gameTime)
+        {
+
             foreach (var stack in stacks) stack.Draw(gameTime);
-            
+
             // fixes the z-ordering stuff
             var items = dragonDrop.dragItems.OrderBy(z => z.ZIndex).ToList();
-            foreach (var item in items) {
+            foreach (var item in items)
+            {
                 var type = item.GetType();
                 if (type == typeof(Card)) item.Draw(gameTime);
             }
-
         }
+
+
+        public void debug()
+        {
+            foreach (var stack in stacks)
+                stack.debug();
+        }
+        
 
 
     }

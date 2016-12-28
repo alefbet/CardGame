@@ -67,7 +67,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="OpenSolitaireClassic.cs" />
@@ -105,67 +105,47 @@
     <Content Include="Content\audio\card-restack.wav" />
     <Content Include="Content\audio\card-undo.wav" />
     <Content Include="Content\audio\pop.wav" />
+    <Content Include="Content\deck\A_10_2.png" />
+    <Content Include="Content\deck\B_2_8.png" />
     <Content Include="Content\deck\card_back_green.png" />
     <Content Include="Content\deck\card_back_purple.png" />
-    <Content Include="Content\deck\clubs_10.png" />
-    <Content Include="Content\deck\clubs_2.png" />
-    <Content Include="Content\deck\clubs_3.png" />
-    <Content Include="Content\deck\clubs_4.png" />
-    <Content Include="Content\deck\clubs_5.png" />
-    <Content Include="Content\deck\clubs_6.png" />
-    <Content Include="Content\deck\clubs_7.png" />
-    <Content Include="Content\deck\clubs_8.png" />
-    <Content Include="Content\deck\clubs_9.png" />
-    <Content Include="Content\deck\clubs_A.png" />
-    <Content Include="Content\deck\clubs_J.png" />
-    <Content Include="Content\deck\clubs_K.png" />
-    <Content Include="Content\deck\clubs_Q.png" />
-    <Content Include="Content\deck\diamonds_10.png" />
-    <Content Include="Content\deck\diamonds_2.png" />
-    <Content Include="Content\deck\diamonds_3.png" />
-    <Content Include="Content\deck\diamonds_4.png" />
-    <Content Include="Content\deck\diamonds_5.png" />
-    <Content Include="Content\deck\diamonds_6.png" />
-    <Content Include="Content\deck\diamonds_7.png" />
-    <Content Include="Content\deck\diamonds_8.png" />
-    <Content Include="Content\deck\diamonds_9.png" />
-    <Content Include="Content\deck\diamonds_A.png" />
-    <Content Include="Content\deck\diamonds_J.png" />
-    <Content Include="Content\deck\diamonds_K.png" />
-    <Content Include="Content\deck\diamonds_Q.png" />
     <Content Include="Content\audio\game-win.wav" />
-    <Content Include="Content\deck\hearts_10.png" />
-    <Content Include="Content\deck\hearts_2.png" />
-    <Content Include="Content\deck\hearts_3.png" />
-    <Content Include="Content\deck\hearts_4.png" />
-    <Content Include="Content\deck\hearts_5.png" />
-    <Content Include="Content\deck\hearts_6.png" />
-    <Content Include="Content\deck\hearts_7.png" />
-    <Content Include="Content\deck\hearts_8.png" />
-    <Content Include="Content\deck\hearts_9.png" />
-    <Content Include="Content\deck\hearts_A.png" />
-    <Content Include="Content\deck\hearts_J.png" />
-    <Content Include="Content\deck\hearts_K.png" />
-    <Content Include="Content\deck\hearts_Q.png" />
     <Content Include="Content\audio\logo-song.wav" />
-    <Content Include="Content\deck\spades_10.png" />
-    <Content Include="Content\deck\spades_2.png" />
-    <Content Include="Content\deck\spades_3.png" />
-    <Content Include="Content\deck\spades_4.png" />
-    <Content Include="Content\deck\spades_5.png" />
-    <Content Include="Content\deck\spades_6.png" />
-    <Content Include="Content\deck\spades_7.png" />
-    <Content Include="Content\deck\spades_8.png" />
-    <Content Include="Content\deck\spades_9.png" />
-    <Content Include="Content\deck\spades_A.png" />
-    <Content Include="Content\deck\spades_J.png" />
-    <Content Include="Content\deck\spades_K.png" />
-    <Content Include="Content\deck\spades_Q.png" />
     <Content Include="Content\audio\table-animation.wav" />
     <None Include="Content\ui\Arial.spritefont" />
     <None Include="OpenAL32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="Content\deck\CL_2_10.png" />
+    <Content Include="Content\deck\C_2_8.png" />
+    <Content Include="Content\deck\D_4_5.png" />
+    <Content Include="Content\deck\ER_2_7.png" />
+    <Content Include="Content\deck\E_12_2.png" />
+    <Content Include="Content\deck\F_2_6.png" />
+    <Content Include="Content\deck\G_4_6.png" />
+    <Content Include="Content\deck\H_2_7.png" />
+    <Content Include="Content\deck\IN_2_7.png" />
+    <Content Include="Content\deck\I_8_2.png" />
+    <Content Include="Content\deck\J_2_13.png" />
+    <Content Include="Content\deck\K_2_8.png" />
+    <Content Include="Content\deck\L_4_3.png" />
+    <Content Include="Content\deck\M_2_5.png" />
+    <Content Include="Content\deck\N_6_5.png" />
+    <Content Include="Content\deck\O_8_2.png" />
+    <Content Include="Content\deck\P_2_6.png" />
+    <Content Include="Content\deck\QU_2_9.png" />
+    <Content Include="Content\deck\Q_2_15.png" />
+    <Content Include="Content\deck\R_6_5.png" />
+    <Content Include="Content\deck\S_4_3.png" />
+    <Content Include="Content\deck\TH_2_9.png" />
+    <Content Include="Content\deck\T_6_3.png" />
+    <Content Include="Content\deck\U_6_4.png" />
+    <Content Include="Content\deck\V_2_11.png" />
+    <Content Include="Content\deck\W_2_10.png" />
+    <Content Include="Content\deck\X_2_12.png" />
+    <Content Include="Content\deck\Y_4_4.png" />
+    <Content Include="Content\deck\Z_2_14.png" />
+    <Content Include="Content\ui\background.png" />
     <Content Include="Content\ui\card_slot.png" />
     <Content Include="Content\ui\debug.png" />
     <Content Include="Content\ui\new_game.png" />

@@ -32,6 +32,22 @@ namespace MonoGame.Ruge.CardEngine {
                 foreach (HexSuit mySuit in Enum.GetValues(typeof(HexSuit)))
                     foreach (HexRank myRank in Enum.GetValues(typeof(HexRank)))
                         cards.Add(new Card(deckType, mySuit, myRank, cardBack, spriteBatch));
+
+            else if (deckType == DeckType.word)            
+                foreach (WordRank myRank in Enum.GetValues(typeof(WordRank)))
+                {
+                    String[] cardDetails = myRank.ToString().Split('_');
+                    int quantity = int.Parse(cardDetails[1]);
+                    for (int i = 0; i < quantity; i++)
+                    {
+                        var c = new Card(deckType, myRank, myRank, cardBack, spriteBatch);
+                        c.wordValue = cardDetails[0];
+                        if (c.wordValue == "Joker")
+                            c.wordValue = "?";
+                        c.wordPoints = int.Parse(cardDetails[2]);
+                        cards.Add(c);
+                    }
+                }
             
             else if (deckType == DeckType.playing) 
                 foreach (PlayingSuit mySuit in Enum.GetValues(typeof(PlayingSuit)))

@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9620D0FA-E9B9-4D5B-8046-12BF738E371C}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WordGame</RootNamespace>
+    <AssemblyName>WordlyWindows</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <MonoGamePlatform>Windows</MonoGamePlatform>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Helpers\Settings.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Plugin.Settings, Version=2.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Settings.2.5.1.0\lib\net45\Plugin.Settings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Settings.Abstractions, Version=2.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Settings.2.5.1.0\lib\net45\Plugin.Settings.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\audio\card-bounce.wav" />
+    <Content Include="Content\audio\card-kick.wav" />
+    <Content Include="Content\audio\card-parent.wav" />
+    <Content Include="Content\audio\card-play.wav" />
+    <Content Include="Content\audio\card-restack.wav" />
+    <Content Include="Content\audio\card-undo.wav" />
+    <Content Include="Content\audio\game-win.wav" />
+    <Content Include="Content\deck\A_10_2.png" />
+    <Content Include="Content\deck\B_2_8.png" />
+    <Content Include="Content\deck\cardBackground.png" />
+    <Content Include="Content\deck\card_slot.png" />
+    <Content Include="Content\deck\CL_2_10.png" />
+    <Content Include="Content\deck\C_2_8.png" />
+    <Content Include="Content\deck\D_4_5.png" />
+    <Content Include="Content\deck\ER_2_7.png" />
+    <Content Include="Content\deck\E_12_2.png" />
+    <Content Include="Content\deck\F_2_6.png" />
+    <Content Include="Content\deck\G_4_6.png" />
+    <Content Include="Content\deck\H_2_7.png" />
+    <Content Include="Content\deck\ING_2_5.png" />
+    <Content Include="Content\deck\IN_2_7.png" />
+    <Content Include="Content\deck\I_8_2.png" />
+    <Content Include="Content\deck\JOKER_2_0.png" />
+    <Content Include="Content\deck\J_2_13.png" />
+    <Content Include="Content\deck\K_2_8.png" />
+    <Content Include="Content\deck\L_4_3.png" />
+    <Content Include="Content\deck\M_2_5.png" />
+    <Content Include="Content\deck\noCards.png" />
+    <Content Include="Content\deck\N_6_5.png" />
+    <Content Include="Content\deck\O_8_2.png" />
+    <Content Include="Content\deck\P_2_6.png" />
+    <Content Include="Content\deck\QU_2_9.png" />
+    <Content Include="Content\deck\Q_2_15.png" />
+    <Content Include="Content\deck\R_6_5.png" />
+    <Content Include="Content\deck\S_4_3.png" />
+    <Content Include="Content\deck\TH_2_9.png" />
+    <Content Include="Content\deck\T_6_3.png" />
+    <Content Include="Content\deck\U_6_4.png" />
+    <Content Include="Content\deck\V_2_11.png" />
+    <Content Include="Content\deck\W_2_10.png" />
+    <Content Include="Content\deck\X_2_12.png" />
+    <Content Include="Content\deck\Y_4_4.png" />
+    <Content Include="Content\deck\Z_2_14.png" />
+    <Content Include="Content\gameplay\addWord.png" />
+    <Content Include="Content\gameplay\clear.png" />
+    <Content Include="Content\gameplay\Exit.png" />
+    <Content Include="Content\gameplay\GameOver.png" />
+    <Content Include="Content\gameplay\PlayAgain.png" />
+    <Content Include="Content\gameplay\playingArea.png" />
+    <Content Include="Content\gameplay\wrongWord.png" />
+    <Content Include="Content\mainscreen\Multiplayer.png" />
+    <Content Include="Content\mainscreen\Solitaire.png" />
+    <Content Include="Content\mainscreen\speaker-off.png" />
+    <Content Include="Content\mainscreen\speaker.png" />
+    <Content Include="Content\mainscreen\settings.png" />
+    <Content Include="Content\splashscreen\Alef.png" />
+    <Content Include="Content\splashscreen\Bet.png" />
+    <Content Include="Content\splashscreen\Software.png" />
+    <Content Include="Content\tiledBackground.png" />
+    <Content Include="Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <MonoGameContentReference Include="Content\Content.mgcb" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonoGame.Ruge\MonoGame.Ruge.csproj">
+      <Project>{653b7788-0e27-4db5-8bad-088deb13d11c}</Project>
+      <Name>MonoGame.Ruge</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Content\deck\CardsForGame.pub" />
+    <None Include="Content\gameplay\Cutive-Regular.ttf" />
+    <None Include="Content\gameplay\Cutive.spritefont" />
+    <None Include="Content\gameplay\GameOver.pdn" />
+    <None Include="Content\gameplay\gameOverFont.spritefont" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="..\WordlyShared\WordlyShared.projitems" Label="Shared" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4890CBCC-F1C3-4D2B-BF8F-07409D9A5DBF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WordGame</RootNamespace>
+    <AssemblyName>WordGame</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <EmbeddedResource Include="Assets\A Words.csv" />
+    <EmbeddedResource Include="Assets\B Words.csv" />
+    <EmbeddedResource Include="Assets\C Words.csv" />
+    <EmbeddedResource Include="Assets\D Words.csv" />
+    <EmbeddedResource Include="Assets\E Words.csv" />
+    <EmbeddedResource Include="Assets\F Words.csv" />
+    <EmbeddedResource Include="Assets\G Words.csv" />
+    <EmbeddedResource Include="Assets\H Words.csv" />
+    <EmbeddedResource Include="Assets\I Words.csv" />
+    <EmbeddedResource Include="Assets\J Words.csv" />
+    <EmbeddedResource Include="Assets\K Words.csv" />
+    <EmbeddedResource Include="Assets\L Words.csv" />
+    <EmbeddedResource Include="Assets\M Words.csv" />
+    <EmbeddedResource Include="Assets\N Words.csv" />
+    <EmbeddedResource Include="Assets\O Words.csv" />
+    <EmbeddedResource Include="Assets\P Words.csv" />
+    <EmbeddedResource Include="Assets\Q Words.csv" />
+    <EmbeddedResource Include="Assets\R Words.csv" />
+    <EmbeddedResource Include="Assets\S Words.csv" />
+    <EmbeddedResource Include="Assets\T Words.csv" />
+    <EmbeddedResource Include="Assets\U Words.csv" />
+    <EmbeddedResource Include="Assets\V Words.csv" />
+    <EmbeddedResource Include="Assets\W Words.csv" />
+    <EmbeddedResource Include="Assets\X Words.csv" />
+    <EmbeddedResource Include="Assets\Y Words.csv" />
+    <EmbeddedResource Include="Assets\Z Words.csv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SinglePlayerGame.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SplashScreen.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
