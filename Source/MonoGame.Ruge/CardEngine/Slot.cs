@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using MonoGame.Ruge.DragonDrop;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace MonoGame.Ruge.CardEngine {
     
@@ -40,9 +41,14 @@ namespace MonoGame.Ruge.CardEngine {
             return Border.Contains(mouse);
         }
 
+        public void ProcessFreeDrag(Point point, GestureSample gesture, GameTime gameTime)
+        {
+
+        }
+
         public void OnSelected() { }
         public void OnDeselected() {}
-        public void OnCollusion(IDragonDropItem item) { }
+        public void OnCollusion(IDragonDropItem item, Point point) { }
 
         private bool lastMouseOver = false;
 

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Ruge.ViewportAdapters;
 using Microsoft.Xna.Framework.Input.Touch;
+using MonoGame.Ruge.DragonDrop;
 
 namespace WordGame
 {
@@ -14,10 +15,29 @@ namespace WordGame
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        public enum AppState { SplashScreen, MainScreen, SolitaireGame, RatedSolitaireGame, MultiPlayerGame }        
+        public enum AppState { SplashScreen, MainScreen, SolitaireGame, RatedSolitaireGame, MultiPlayerGame }
 
-        public AppState currentAppState;
-
+        AppState _currentAppState = AppState.SplashScreen;
+        public AppState currentAppState
+        {
+            get
+            {
+                return _currentAppState;
+            }
+            set
+            {
+                _currentAppState = value;
+                switch (_currentAppState)
+                {
+                    case AppState.SolitaireGame:
+                        solitaireGame.SetTable();
+                        break;
+                    case AppState.MultiPlayerGame:
+                        multiplayerGame.NewGame();
+                        break;
+                }
+            }
+        }
         
         public const int WINDOW_WIDTH = 1980;
         public const int WINDOW_HEIGHT = 1020;
@@ -28,11 +48,15 @@ namespace WordGame
         public BoxingViewportAdapter viewPort { get; set; }
 
         SplashScreen splashScreen;
-        MainScreen mainScreen;
-        SolitaireGame solitaireGame;
+        public MainScreen mainScreen;
+        public SolitaireGame solitaireGame;
+        public MultiPlayerGame multiplayerGame;
+
+        public OnlineConnectivity online;
 
         public CheckValidWords validWords = new CheckValidWords();
-
+        DragonDrop<IDragonDropItem> dragonDrop;
+        
         Texture2D background;
         public Texture2D dimScreen;
 
@@ -40,16 +64,16 @@ namespace WordGame
         {
             graphics = new GraphicsDeviceManager(this);
             Window.AllowUserResizing = true;
-            
+            online = new OnlineConnectivity();
 
             graphics.PreferredBackBufferWidth = WINDOW_WIDTH;
             graphics.PreferredBackBufferHeight = WINDOW_HEIGHT;
 
             TouchPanel.EnableMouseTouchPoint = true;
             TouchPanel.EnableMouseGestures = true;
-            TouchPanel.EnabledGestures = GestureType.DoubleTap | GestureType.FreeDrag | GestureType.Tap;
+            TouchPanel.EnabledGestures = GestureType.DoubleTap | GestureType.FreeDrag | GestureType.Tap | GestureType.DragComplete;
 
-            currentAppState = AppState.SolitaireGame;
+            currentAppState = AppState.MainScreen;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             
@@ -66,7 +90,7 @@ namespace WordGame
         {
             // TODO: Add your initialization logic here
             viewPort = new BoxingViewportAdapter(Window, GraphicsDevice, WINDOW_WIDTH, WINDOW_HEIGHT);
-            
+            dragonDrop = new DragonDrop<IDragonDropItem>(this, viewPort);
             base.Initialize();
         }
 
@@ -82,8 +106,8 @@ namespace WordGame
             splashScreen.SplashScreenEnded += SplashScreenEnded;
 
             mainScreen = new MainScreen(Content, spriteBatch, this);
-
-            solitaireGame = new SolitaireGame(Content, spriteBatch, this);
+            solitaireGame = new SolitaireGame(spriteBatch, dragonDrop, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
+            multiplayerGame = new MultiPlayerGame(spriteBatch, dragonDrop, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
 
             background = Content.Load<Texture2D>("tiledBackground");
 
@@ -134,6 +158,9 @@ namespace WordGame
                 case AppState.RatedSolitaireGame:
                     solitaireGame.Update(gameTime);
                     break;
+                case AppState.MultiPlayerGame:
+                    multiplayerGame.Update(gameTime);
+                    break;
             }
             base.Update(gameTime);
         }
@@ -165,6 +192,10 @@ namespace WordGame
                 case AppState.SolitaireGame:
                 case AppState.RatedSolitaireGame:
                     solitaireGame.Draw(gameTime);
+                    break;
+
+                case AppState.MultiPlayerGame:
+                    multiplayerGame.Draw(gameTime);
                     break;
             }
 

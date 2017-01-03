@@ -23,6 +23,7 @@ namespace MonoGame.Ruge.CardEngine {
     public enum StackMethod {
         normal,
         horizontal,
+        draggable,
         vertical,
         undefined
     }
@@ -88,6 +89,7 @@ namespace MonoGame.Ruge.CardEngine {
             get {
 
                 switch (method) {
+                    case StackMethod.draggable: return new Vector2(stackOffsetHorizontal, 0);
                     case StackMethod.horizontal: return new Vector2(stackOffsetHorizontal, 0);
                     case StackMethod.vertical:   return new Vector2(0, stackOffsetVertical);
                     default:                     return Vector2.Zero;
@@ -130,15 +132,20 @@ namespace MonoGame.Ruge.CardEngine {
         /// <summary>
         /// use this to shuffle the card deck
         /// </summary>
-        public void shuffle() {
+        public void shuffle(int? seed = null) {
 
             // wait a few ms to avoid seed collusion; otherwise
             // the random method will return the same value twice
-            Thread.Sleep(30);
+            
+            Random rand;
 
-            var rand = new Random();
+            if (seed == null)
+                rand = new Random();
+            else
+                rand = new Random((int)seed);
+
             for (int i = cards.Count - 1; i > 0; i--) {
-                int randomIndex = rand.Next(i + 1);
+                int randomIndex = rand.Next(cards.Count);
                 var tempCard = cards[i];
                 cards[i] = cards[randomIndex];
                 cards[randomIndex] = tempCard;
@@ -283,6 +290,10 @@ namespace MonoGame.Ruge.CardEngine {
                 var newCardX = slot.Position.X + stackOffestX * i;
                 var newCardY = slot.Position.Y + stackOffestY * i;
 
+                if (method == StackMethod.draggable)
+                {
+                    newCardX += 20;
+                }
                 if (card.isFaceUp && crunchItems > 0 && cards.Count >= crunchItems) {
                     newCardX -= offset.X * numFaceDown / 2 - offset.X / 2;
                     newCardY -= offset.Y * numFaceDown / 2 - offset.Y / 2;

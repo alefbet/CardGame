@@ -10,8 +10,8 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DroidWordGame</RootNamespace>
-    <AssemblyName>DroidWordGame</AssemblyName>
+    <RootNamespace>WordGame</RootNamespace>
+    <AssemblyName>Wor</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <AndroidApplication>true</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
@@ -19,13 +19,13 @@
     <AndroidSupportedAbis>armeabi-v7a%3bx86</AndroidSupportedAbis>
     <AndroidStoreUncompressedFileExtensions>.m4a</AndroidStoreUncompressedFileExtensions>
     <MandroidI18n />
-    <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v6.0</TargetFrameworkVersion>
     <MonoGamePlatform>Android</MonoGamePlatform>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
@@ -33,7 +33,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
-    <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
+    <BundleAssemblies>False</BundleAssemblies>
+    <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+    <Debugger>Xamarin</Debugger>
+    <AotAssemblies>False</AotAssemblies>
+    <EnableLLVM>False</EnableLLVM>
+    <AndroidEnableMultiDex>False</AndroidEnableMultiDex>
+    <EnableProguard>False</EnableProguard>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -49,6 +57,14 @@
     <Reference Include="Mono.Android" />
     <Reference Include="mscorlib" />
     <Reference Include="OpenTK-1.0" />
+    <Reference Include="Plugin.Settings, Version=2.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Settings.2.5.1.0\lib\MonoAndroid10\Plugin.Settings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Settings.Abstractions, Version=2.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xam.Plugins.Settings.2.5.1.0\lib\MonoAndroid10\Plugin.Settings.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -59,11 +75,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity1.cs" />
-    <Compile Include="Game1.cs" />
+    <Compile Include="Helpers\Settings.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\deck\CardsForGame.pub" />
+    <None Include="Content\gameplay\Cutive-Regular.ttf" />
+    <AndroidAsset Include="Content\gameplay\Cutive.spritefont" />
+    <None Include="Content\gameplay\GameOver.pdn" />
+    <AndroidAsset Include="Content\gameplay\gameOverFont.spritefont" />
+    <None Include="Content\mainscreen\Thumbs.db" />
+    <None Include="Content\splashscreen\Thumbs.db" />
+    <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
@@ -71,7 +95,7 @@
     <AndroidResource Include="Resources\Values\Strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\Drawable\Icon.png" />
+    <AndroidResource Include="Resources\Drawable\ic_launcher.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\Layout\" />
@@ -85,6 +109,118 @@
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\AndroidManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonoGame.Ruge\MonoGame.Ruge.csproj">
+      <Project>{653b7788-0e27-4db5-8bad-088deb13d11c}</Project>
+      <Name>MonoGame.Ruge</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\splashscreen\Alef.png" />
+    <AndroidAsset Include="Content\splashscreen\Bet.png" />
+    <AndroidAsset Include="Content\splashscreen\Software.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\audio\card-bounce.wav" />
+    <AndroidAsset Include="Content\audio\card-kick.wav" />
+    <AndroidAsset Include="Content\audio\card-parent.wav" />
+    <AndroidAsset Include="Content\audio\card-play.wav" />
+    <AndroidAsset Include="Content\audio\card-restack.wav" />
+    <AndroidAsset Include="Content\audio\card-undo.wav" />
+    <AndroidAsset Include="Content\audio\game-win.wav" />
+    <AndroidAsset Include="Content\audio\table-animation.wav" />
+    <AndroidAsset Include="Content\deck\A_10_2.png" />
+    <AndroidAsset Include="Content\deck\B_2_8.png" />
+    <AndroidAsset Include="Content\deck\cardBackground.png" />
+    <AndroidAsset Include="Content\deck\card_slot.png" />
+    <AndroidAsset Include="Content\deck\CL_2_10.png" />
+    <AndroidAsset Include="Content\deck\C_2_8.png" />
+    <AndroidAsset Include="Content\deck\D_4_5.png" />
+    <AndroidAsset Include="Content\deck\ER_2_7.png" />
+    <AndroidAsset Include="Content\deck\E_12_2.png" />
+    <AndroidAsset Include="Content\deck\F_2_6.png" />
+    <AndroidAsset Include="Content\deck\G_4_6.png" />
+    <AndroidAsset Include="Content\deck\H_2_7.png" />
+    <AndroidAsset Include="Content\deck\IN_2_7.png" />
+    <AndroidAsset Include="Content\deck\I_8_2.png" />
+    <AndroidAsset Include="Content\deck\J_2_13.png" />
+    <AndroidAsset Include="Content\deck\K_2_8.png" />
+    <AndroidAsset Include="Content\deck\L_4_3.png" />
+    <AndroidAsset Include="Content\deck\M_2_5.png" />
+    <AndroidAsset Include="Content\deck\N_6_5.png" />
+    <AndroidAsset Include="Content\deck\O_8_2.png" />
+    <AndroidAsset Include="Content\deck\P_2_6.png" />
+    <AndroidAsset Include="Content\deck\QU_2_9.png" />
+    <AndroidAsset Include="Content\deck\Q_2_15.png" />
+    <AndroidAsset Include="Content\deck\R_6_5.png" />
+    <AndroidAsset Include="Content\deck\S_4_3.png" />
+    <AndroidAsset Include="Content\deck\TH_2_9.png" />
+    <AndroidAsset Include="Content\deck\T_6_3.png" />
+    <AndroidAsset Include="Content\deck\U_6_4.png" />
+    <AndroidAsset Include="Content\deck\V_2_11.png" />
+    <AndroidAsset Include="Content\deck\W_2_10.png" />
+    <AndroidAsset Include="Content\deck\X_2_12.png" />
+    <AndroidAsset Include="Content\deck\Y_4_4.png" />
+    <AndroidAsset Include="Content\deck\Z_2_14.png" />
+    <AndroidAsset Include="Content\deck\ING_2_5.png" />
+    <AndroidAsset Include="Content\deck\JOKER_2_0.png" />
+    <AndroidAsset Include="Content\deck\noCards.png" />
+    <AndroidAsset Include="Content\mainscreen\Multiplayer.png" />
+    <AndroidAsset Include="Content\mainscreen\settings.png" />
+    <AndroidAsset Include="Content\mainscreen\Solitaire.png" />
+    <AndroidAsset Include="Content\mainscreen\speaker-off.png" />
+    <AndroidAsset Include="Content\mainscreen\speaker.png" />
+    <AndroidAsset Include="Content\splashscreen\tiledBackground.png" />
+    <AndroidAsset Include="Content\tiledBackground.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\gameplay\addWord.png" />
+    <AndroidAsset Include="Content\gameplay\clear.png" />
+    <AndroidAsset Include="Content\gameplay\Exit.png" />
+    <AndroidAsset Include="Content\gameplay\GameOver.png" />
+    <AndroidAsset Include="Content\gameplay\playingArea.png" />
+    <AndroidAsset Include="Content\gameplay\wrongWord.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\gameplay\PlayAgain.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-hdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-mdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-xhdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-xxhdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-xxxhdpi\ic_launcher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-hdpi\Splash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-mdpi\Splash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-xxhdpi\Splash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-xhdpi\Splash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\mipmap-xxxhdpi\Splash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\deck\ED_2_7.png" />
+  </ItemGroup>
+  <Import Project="..\WordlyShared\WordlyShared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -4,6 +4,7 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace MonoGame.Ruge.DragonDrop {
     /// <summary>
@@ -21,8 +22,9 @@ namespace MonoGame.Ruge.DragonDrop {
         void OnSelected();
         void OnDeselected();
         bool Contains(Vector2 pointToCheck);
-        void OnCollusion(IDragonDropItem item);
+        void OnCollusion(IDragonDropItem item, Point point);        
         void Update(GameTime gameTime);
         void Draw(GameTime gameTime);
+        void ProcessFreeDrag(Point point, GestureSample gesture, GameTime gameTime);
     }
 }

@@ -4,6 +4,7 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Data;
@@ -14,7 +15,7 @@ namespace MonoGame.Ruge.DragonDrop {
 
     public class DragonDrop<T> : DrawableGameComponent where T : IDragonDropItem {
 
-        MouseState oldMouse, currentMouse;
+        MouseState oldMouse, currentMouse;        
 
         public readonly ViewportAdapter viewport;
 
@@ -70,15 +71,18 @@ namespace MonoGame.Ruge.DragonDrop {
             }
         }
 
+
+
+
         public Vector2 Movement => CurrentMouse - OldMouse;
 
 
-        private T GetCollusionItem() {
+        public T GetCollusionItem(Vector2 point) {
 
             var items = dragItems.OrderByDescending(z => z.ZIndex).ToList();
             foreach (var item in items) {
 
-                if (item.Contains(CurrentMouse) && !Equals(selectedItem, item)) return item;
+                if (item.Contains(point) && !Equals(selectedItem, item)) return item;
 
             }
          
@@ -104,7 +108,8 @@ namespace MonoGame.Ruge.DragonDrop {
 
             return default(T);
 
-        }
+        }        
+
 
         public override void Update(GameTime gameTime) {
 
@@ -122,15 +127,16 @@ namespace MonoGame.Ruge.DragonDrop {
                     }
                     else if (unClick) {
 
-                        var collusionItem = GetCollusionItem();
+                        var collusionItem = GetCollusionItem(CurrentMouse);
 
                         if (collusionItem != null) {
-                            selectedItem.OnCollusion(collusionItem);
+                            selectedItem.OnCollusion(collusionItem, CurrentMouse.ToPoint());
                             collusionItem.Update(gameTime);
                         }
 
                         selectedItem.OnDeselected();
                         selectedItem.Update(gameTime);
+                        selectedItem = default(T);
 
                     }
                 }

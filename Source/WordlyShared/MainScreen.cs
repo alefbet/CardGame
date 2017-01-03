@@ -8,18 +8,21 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using MonoGame.Ruge.Glide;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Input.Touch;
+using System.Diagnostics;
+
 
 namespace WordGame
 {
     public class MainScreen
     {
-
+               
         ContentManager Content;
         SpriteBatch spriteBatch;
         MainGame mainGame;
 
         
-        public 
+                
 
         Texture2D solitaire, ranked, multiplayer, settings, sound, soundOff, info;
         Rectangle solitaireRect, rankedRect, multiplayerRect, settingsRect, soundRect, infoRect;
@@ -64,11 +67,31 @@ namespace WordGame
             //tween.Tween(softwareRect, new { Position = new Vector2(1920 / 2 - 100, 800) }, 3, 15).OnComplete(splashScreenEnd); ;            
         }
 
-        
+
 
         public void Update(GameTime gameTime)
         {
-            //tween.Update(float.Parse(gameTime.ElapsedGameTime.Seconds + "." + gameTime.ElapsedGameTime.Milliseconds));
+            while (TouchPanel.IsGestureAvailable)
+            {
+                var gesture = TouchPanel.ReadGesture();
+
+                var point = gesture.Position.ToPoint();
+
+                point = mainGame.viewPort.PointToScreen(point);
+                Debug.WriteLine("Gesture:" + gesture.GestureType + ":" + point.ToString());
+
+                switch (gesture.GestureType)
+                {
+
+                    case GestureType.Tap:
+                        if (solitaireRect.Contains(point))
+                            mainGame.currentAppState = MainGame.AppState.SolitaireGame;
+                        else if (multiplayerRect.Contains(point))
+                            mainGame.currentAppState = MainGame.AppState.MultiPlayerGame;
+                            
+                        break;
+                }
+            }
         }
 
         public void Draw(GameTime time)

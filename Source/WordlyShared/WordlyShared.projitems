@@ -10,7 +10,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CheckValidWords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Facebook.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainGame.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OnlineConnectivity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MultiplayerGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SolitaireGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainScreen.cs" />

@@ -2,11 +2,14 @@
  * Unlicensed under NWO-CS (see UNLICENSE)
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input.Touch;
 using MonoGame.Ruge.DragonDrop;
+using System.Diagnostics;
 
 namespace MonoGame.Ruge.CardEngine {
 
@@ -16,14 +19,13 @@ namespace MonoGame.Ruge.CardEngine {
         protected const int ON_TOP = 1000;
         
         protected int stackOffsetHorizontal, stackOffsetVertical;
-        protected Texture2D cardBack, slotTex;
+        public Texture2D cardBack, slotTex;
         protected SpriteBatch spriteBatch;
         protected DragonDrop<IDragonDropItem> dragonDrop;
         
         public List<Stack> stacks = new List<Stack>();
-        
-
-        public Table(SpriteBatch spriteBatch, DragonDrop<IDragonDropItem> dragonDrop, Texture2D cardBack, Texture2D slotTex, int stackOffsetH, int stackOffsetV) {
+                
+        public Table(SpriteBatch spriteBatch, DragonDrop<IDragonDropItem> dragonDrop, int stackOffsetH, int stackOffsetV, Texture2D cardBack = null, Texture2D slotTex = null) {
             this.spriteBatch = spriteBatch;
             this.dragonDrop = dragonDrop;
             stackOffsetHorizontal = stackOffsetH;
@@ -143,9 +145,60 @@ namespace MonoGame.Ruge.CardEngine {
             foreach (var stack in stacks)
                 stack.debug();
         }
-        
 
+        public void ProcessFreeDrag(Point point, GestureSample gesture, GameTime gameTime)
+        {
 
+            var items = dragonDrop.dragItems.OrderBy(z => z.ZIndex).ToList();
+            
+            switch (gesture.GestureType)
+            {
+                case GestureType.FreeDrag:
+                    if (dragonDrop.selectedItem != null)
+                    {
+                        dragonDrop.selectedItem.ProcessFreeDrag(point, gesture, gameTime);                        
+                    }
+                    else
+                    {
+                        foreach (var item in items)
+                        {
+                            var type = item.GetType();
+                            if (type == typeof(Card) && item.Contains(point.ToVector2()) && item.IsDraggable)
+                            {
+                                item.OnSelected();
+                                item.ZIndex += ON_TOP;
+                                dragonDrop.selectedItem = item;
+                                item.ProcessFreeDrag(point, gesture, gameTime);
+                                break;
+                            }
+                        }
+                    }
+
+                    break;
+
+                case GestureType.DragComplete:                    
+                    if (dragonDrop.selectedItem != null)
+                    {
+                        var collusionItem = dragonDrop.GetCollusionItem(point.ToVector2());
+
+                        if (collusionItem != null)
+                        {
+                            dragonDrop.selectedItem.OnCollusion(collusionItem, point);
+                            collusionItem.Update(gameTime);
+                        }
+
+                        
+                        dragonDrop.selectedItem.OnDeselected();
+                        dragonDrop.selectedItem.Update(gameTime);
+
+                        //dragonDrop.selectedItem.ProcessFreeDrag(point, gesture, gameTime);
+                        dragonDrop.selectedItem = null;
+                    }                    
+                    break;
+            }
+
+            
+        }
     }
     
 

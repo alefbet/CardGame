@@ -33,20 +33,21 @@ namespace WordGame
         }
     }
 
-    public class SolitaireGame
+    public class SolitaireGame : Table
     {
-        ContentManager Content;
-        SpriteBatch spriteBatch;
-        MainGame mainGame;
+        public ContentManager Content;        
+        public MainGame mainGame;
+        
+        //private Table table;
 
-        private Table table;
+       
 
-        protected const int ON_TOP = 1000;
+        
 
         const int CARD_WIDTH = 210;
         const int CARD_HEIGHT = 252;
-        const int stackOffsetHorizontal = 50;
-        const int stackOffsetVertical = 20;
+        public static new int stackOffsetHorizontal = 50;
+        public static new int stackOffsetVertical = 20;
         const int numStacks = 8;
 
         const int kickSound = 0;
@@ -55,17 +56,36 @@ namespace WordGame
 
         public bool quitGame = false;
 
-        Texture2D slotTex, noCardsTex, cardBack, debug, wordTex, addWordTex, gameOverTex, exitTex, clearTex, wrongWordTex, gameOverPlayAgainTex;
+        Texture2D noCardsTex, wordTex, addWordTex, gameOverTex, exitTex, clearTex, wrongWordTex, gameOverPlayAgainTex;
         SpriteFont font, gameOverFont;
-        Color debugColor, addWordColor;
-        Rectangle debugRect, scoreRect, scoreLabelRect, addWordRect, clearRect, gameOverRect;
+        Color addWordColor;
+        Rectangle scoreRect, scoreLabelRect, addWordRect, clearRect, gameOverRect;
         Rectangle gameOverPlayAgainRect, exitRect;
 
         MoveImage curWordScoreImage = null;
-        
-                
 
-        DragonDrop<IDragonDropItem> dragonDrop;
+        bool postedGameScores;
+
+        //public SolitaireGame(ContentManager Content, SpriteBatch spriteBatch, MainGame game)
+        //{
+        //    this.Content = Content;
+
+        //    this.mainGame = game;
+        //    LoadContent();
+        //}
+
+        public SolitaireGame(SpriteBatch spriteBatch, DragonDrop<IDragonDropItem> dragonDrop,  int stackOffsetH, int stackOffsetV, ContentManager Content, MainGame game) : base(spriteBatch, dragonDrop, stackOffsetH, stackOffsetV)
+        {
+            this.spriteBatch = spriteBatch;
+            this.dragonDrop = dragonDrop;
+            this.Content = Content;
+            this.mainGame = game;
+            LoadContent();
+            
+        }
+
+
+        
         private List<SoundEffect> soundFX;
 
         public Deck drawPile { get; set; }
@@ -172,13 +192,7 @@ namespace WordGame
 
         private Tweener tween = new Tweener();
 
-        public SolitaireGame(ContentManager Content, SpriteBatch spriteBatch, MainGame game)
-        {
-            this.Content = Content;
-            this.spriteBatch = spriteBatch;
-            this.mainGame = game;
-            LoadContent();
-        }
+        
 
         public void LoadContent()
         {
@@ -202,7 +216,7 @@ namespace WordGame
             wrongWordTex = Content.Load<Texture2D>("gameplay/wrongWord");
             clearTex = Content.Load<Texture2D>("gameplay/clear");
             exitTex = Content.Load<Texture2D>("gameplay/exit");
-            exitRect = new Rectangle(1980 - exitTex.Width, 0, 100, 100);
+            exitRect = new Rectangle(1980 - 100, 0, 100, 100);
 
             gameOverTex = Content.Load<Texture2D>("gameplay/GameOver");
             gameOverRect = new Rectangle(0,0,1980,1020);
@@ -213,10 +227,9 @@ namespace WordGame
             gameOverFont = Content.Load<SpriteFont>("gameplay/gameOverFont");
 
 
-            dragonDrop = new DragonDrop<IDragonDropItem>(mainGame, mainGame.viewPort);
-            table = new Table(spriteBatch, dragonDrop, cardBack, slotTex, 50, 20);
-
-            drawPile = new Deck(table, DeckType.word, cardBack, slotTex, spriteBatch, stackOffsetHorizontal, stackOffsetVertical) { type = StackType.deck };
+            
+            
+            drawPile = new Deck(this, DeckType.word, cardBack, slotTex, spriteBatch, stackOffsetHorizontal, stackOffsetVertical) { type = StackType.deck };
             drawPile.freshDeck();
 
             
@@ -249,7 +262,7 @@ namespace WordGame
 
             dragonDrop.Add(drawSlot);
             drawPile.slot = drawSlot;
-            table.AddStack(drawPile);
+            AddStack(drawPile);
 
 
             scoreLabelRect = new Rectangle(2*x + slotTex.Width, y+80, slotTex.Width, 80);
@@ -259,9 +272,10 @@ namespace WordGame
             {
                 Position = new Vector2(x + x * 2 + slotTex.Width * 2, y),
                 name = "Word"
-            };
 
-            currentWordStack = table.AddStack(wordSlot, StackType.hand, StackMethod.horizontal);
+            };            
+
+            currentWordStack = AddStack(wordSlot, StackType.hand, StackMethod.horizontal);
 
 
             clearRect = new Rectangle(wordSlot.Border.Right - clearTex.Width, wordSlot.Border.Top, clearTex.Width, clearTex.Height);
@@ -281,7 +295,7 @@ namespace WordGame
                 };
 
                 stackPositions.Add(newSlot.Position);
-                var newStack = table.AddStack(newSlot, StackType.stack, StackMethod.vertical);
+                var newStack = AddStack(newSlot, StackType.stack, StackMethod.vertical);
 
                 // add crunch for these stacks
                 newStack.crunchItems = 24;
@@ -293,10 +307,10 @@ namespace WordGame
 
         
 
-        public void SetTable()
+        public new void SetTable()
         {
 
-            foreach (var stack in table.stacks)
+            foreach (var stack in stacks)
             {
                 stack.Clear();
             }
@@ -308,12 +322,13 @@ namespace WordGame
             quitGame = false;
 
             completedWords = new List<CompletedWord>();
+            postedGameScores = false;
 
             foreach (var card in drawPile.cards)
             {
                 dragonDrop.Add(card);
 
-                card.Selected += OnCardSelected;
+                //card.Selected += OnCardSelected;
                 card.Collusion += OnCollusion;
                 //card.Save += Save;
                 card.stack = drawPile;
@@ -344,8 +359,9 @@ namespace WordGame
                 if (i == 0)
                 {
                     moveCard.isFaceUp = true;
+                    moveCard.IsDraggable = true;
                     tween.Tween(moveCard, new { Position = pos }, 7, 40)
-                        .OnComplete(afterTween)
+                        .OnComplete(afterAnimate)
                         .Ease(Ease.CubeOut);
                 }
                 else
@@ -355,13 +371,13 @@ namespace WordGame
 
                     tween.Tween(moveCard, new { Position = pos }, 5, delay)
                         .Ease(Ease.CubeOut)
-                        .OnComplete(afterTween);
+                        .OnComplete(afterAnimate);
                 }
 
                 moveCard.snapPosition = pos;
                 moveCard.IsDraggable = false;
 
-                table.stacks[i + 2].addCard(moveCard);
+                stacks[i + 2].addCard(moveCard);
 
                 for (var j = 1; j < i + 1; j++)
                 {
@@ -376,7 +392,7 @@ namespace WordGame
 
                         tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 7, 40)
                             .OnBegin(() => setFaceUp(moveCard))
-                            .OnComplete(afterTween)
+                            .OnComplete(afterAnimate)
                             .Ease(Ease.CubeOut);
                     }
                     else
@@ -386,11 +402,11 @@ namespace WordGame
 
                         tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 5, delay)
                             .Ease(Ease.CubeOut)
-                            .OnComplete(afterTween);
+                            .OnComplete(afterAnimate);
                     }
 
                     moveCard.IsDraggable = false;
-                    table.stacks[i + 2].addCard(moveCard);
+                    stacks[i + 2].addCard(moveCard);
                 }
             }
 
@@ -411,17 +427,22 @@ namespace WordGame
         private void setFaceUp(Card c)
         {
             c.isFaceUp = true;
+            c.IsDraggable = true;
         }
 
         private void addAndSetFaceUp(Card c, Stack s)
         {
             if (s.Count > 0)
+            {
                 s.topCard().isFaceUp = false;
+                s.topCard().IsDraggable = false;
+            }
             s.addCard(c, true);            
-            c.isFaceUp = true;            
+            c.isFaceUp = true;
+            c.IsDraggable = true;
         }
 
-        private void afterTween()
+        private void afterAnimate()
         {
 
             animationCount--;
@@ -430,48 +451,53 @@ namespace WordGame
             if (!muteSound) soundFX[playSound].Play();
         }
 
-        private void afterTween(Card card)
-        {
-            card.flipCard();
-            card.snapPosition = card.Position;
-            card.IsDraggable = true;
-            card.snapTime = .7f;
-            //discardPile.addCard(card);
-            animationCount--;
-            if (!muteSound) soundFX[playSound].Play();
-        }
+        //private void afterTween(Card card)
+        //{
+        //    card.flipCard();
+        //    card.snapPosition = card.Position;
+        //    card.IsDraggable = true;
+        //    card.snapTime = .7f;
+        //    //discardPile.addCard(card);
+        //    animationCount--;
+        //    if (!muteSound) soundFX[playSound].Play();
+        //}
 
-        private void afterTween(Card card, Card destinationCard)
+        private void afterAnimateCardToAnotherCard(Card card, Card destinationCard)
         {
 
             card.ZIndex -= ON_TOP;
             card.isSnapAnimating = false;
-            card.SetParent(destinationCard);
+            destinationCard.stack.addCard(card);
+            //card.SetParent(destinationCard);
             if (!muteSound) soundFX[playSound].Play(.3f, 0, 0);
             animationCount = 0;
         }
 
-        private void afterTween(Card card, Stack stack)
+        private void afterAnimateCardToStack(Card card, Stack stack)
         {
             card.ZIndex -= ON_TOP;
             card.isSnapAnimating = false;
-            card.allowsSelection = true;    
+            card.allowsSelection = true;
             if (stack.Count == 0)
                 card.MoveToEmptyStack(stack);
             else
-                card.SetParent(stack.cards[stack.Count - 1]);
+                //card.SetParent(stack.cards[stack.Count - 1]);
+                stack.addCard(card);
             if (!muteSound) soundFX[playSound].Play(.3f, 0, 0);
             animationCount = 0;
         }
 
-        private void afterTweenPlayCardToEmptyStack(Card card, Stack stack)
+        private void afterAnimatePlayCardToEmptyStack(Card card, Stack stack)
         {
-            afterTween(card, stack);
+            afterAnimateCardToStack(card, stack);
             if (card.previousStack.Count > 0)
+            {
                 card.previousStack.topCard().isFaceUp = true;
+                card.previousStack.topCard().IsDraggable = true;
+            }
         }
 
-        private void afterTweenReturn(Card card, Stack stack, Stack currentWordStack)
+        private void afterAnimateCardReturnFromWord(Card card, Stack stack, Stack currentWordStack)
         {
             card.ZIndex -= ON_TOP;
             card.isSnapAnimating = false;
@@ -483,36 +509,51 @@ namespace WordGame
 
         private void OnCollusion(object sender, Card.CollusionEvent e)
         {
-            throw new NotImplementedException();
+            var type = e.item.GetType();
+            var card = (Card)sender;
+            if (type == typeof(Card))
+            {
+                
+                var destination = (Card) e.item;
+                Debug.WriteLine("OnCollusion: " + card.suit.ToString() + " : " + " Card " + destination.suit.ToString() + ": " + destination.stack.name);
+
+                if (destination.stack == currentWordStack && card.stack != currentWordStack)                
+                    PlayCardToEndOfCurrentWord(card);                
+                else
+                    PlayCardAfterCard(card, destination);
+            }
+            else if (type == typeof(Slot))
+            {
+                var slot = (Slot)e.item;
+                Debug.WriteLine("OnCollusion: " + card.suit.ToString() + " : " + " Slot " + slot.stack.name);
+                if (e.item == currentWordStack.slot)
+                    PlayCardToEndOfCurrentWord(card);
+                else if (slot.stack.Count == 0)
+                {
+                    var allowPlay = true;
+                    foreach (var c in currentWordStack.cards)
+                        if (c.previousStack == slot.stack)
+                            allowPlay = false;
+
+                    if (allowPlay)
+                        PlayCardToEmptyStack(card, slot.stack);
+                }
+            }
+
         }
 
-        private void OnCardSelected(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+       
 
-        
-        
-        //private const double DELAY = 500;
-
+  
         private bool dblTap = false;
-        public void Update(GameTime gameTime)
-        {
 
+        public new void Update(GameTime gameTime)
+        {
+            if (isGameOver)
+                ProcessEndOfGame();
+                    
             
 
-
-#if false
-            debugRect = new Rectangle(310, 140, debug.Width, debug.Height);
-            debugColor = Color.White;
-            if (debugRect.Contains(point))
-            {
-                debugColor = Color.Aqua;
-                if (click) foreach (var stack in table.stacks) stack.debug();
-
-                if (click) Debug.WriteLine("Total Score:" + TotalScore);
-            }
-#endif
             addWordColor = (currentWordStack.Count > 1) ? Color.White : Color.DarkGray;        
 
             while (TouchPanel.IsGestureAvailable)
@@ -526,11 +567,18 @@ namespace WordGame
 
                 switch (gesture.GestureType)
                 {
+                    case GestureType.FreeDrag:
+                    case GestureType.DragComplete:
+                        var sel = (dragonDrop.selectedItem == null) ? "None" : ((Card) dragonDrop.selectedItem).ToString();
+                        Debug.WriteLine("Gesture:" + gesture.GestureType + ":" + point.ToString() + ": Delta : " + gesture.Delta.ToPoint().ToString() + " : SelectedItem :" + sel);
+                        ProcessFreeDrag(point, gesture, gameTime);
+                        break;
+
                     case GestureType.Tap:
                         if (isGameOver)
                         {
                             if (exitRect.Contains(point))
-                                mainGame.Exit();
+                                mainGame.currentAppState = MainGame.AppState.MainScreen;
 
                             if (gameOverPlayAgainRect.Contains(point))
                                 SetTable();
@@ -562,7 +610,7 @@ namespace WordGame
                             }
 
                             // check if it was on one of the table stacks
-                            foreach (var stack in table.stacks)
+                            foreach (var stack in stacks)
                             {
                                 if (stack.Count > 0)
                                 {
@@ -579,7 +627,7 @@ namespace WordGame
                                                 {
                                                     // DO stuff on Tap                
                                                     Debug.WriteLine("play-card: " + topCard.wordValue + " return-stack: " + topCard.stack.name);
-                                                    PlayTopCard(topCard);
+                                                    PlayCardToEndOfCurrentWord(topCard);
                                                 }
                                             });
                                             
@@ -613,7 +661,7 @@ namespace WordGame
                             var emptyStack = GetEmptyStack();
                             if (emptyStack != null)
                             {
-                                foreach (var stack in table.stacks)
+                                foreach (var stack in stacks)
                                 {
                                     if (stack.Count > 0)
                                     {
@@ -640,13 +688,23 @@ namespace WordGame
             }
             
             tween.Update(float.Parse(gameTime.ElapsedGameTime.Seconds + "." + gameTime.ElapsedGameTime.Milliseconds));
-            table.Update(gameTime);
+            base.Update(gameTime);
+
+        }
+
+        private void ProcessEndOfGame()
+        {
+            if (!postedGameScores)
+            {
+                mainGame.online.SubmitScore("Level 1", TotalScore, BestWord.word);
+                postedGameScores = true;
+            }
         }
 
         private Stack GetEmptyStack()
         {
             Stack ret = null;
-            foreach (var stack in table.stacks)
+            foreach (var stack in stacks)
             {
                 if ((stack.type == StackType.stack) && stack.Count == 0)
                     return stack;
@@ -664,7 +722,7 @@ namespace WordGame
             for (int i = 0; i < numStacks; i++)
             {
                 var moveCard = drawPile.drawCard();
-                var stack = table.stacks[i + 2];
+                var stack = stacks[i + 2];
 
 
                 moveCard.snapPosition = new Vector2(stack.slot.Position.X, stack.slot.Position.Y + (stackOffsetVertical * (stack.Count+1)));
@@ -672,7 +730,7 @@ namespace WordGame
                 moveCard.Position = drawSlot.Position;
                 tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 7, delayForClear)
                     .OnBegin(() => addAndSetFaceUp(moveCard, stack))
-                    .OnComplete(afterTween)
+                    .OnComplete(afterAnimate)
                     .Ease(Ease.CubeOut);
                     
             }        
@@ -686,19 +744,17 @@ namespace WordGame
             if (checkWord)
             {
                 foreach (var card in currentWordStack.cards)
-                {
-                    if (!isAnimating)
-                    {
-                        animationCount++;
-                        card.ZIndex += ON_TOP;
+                {                    
+                    animationCount++;
+                    card.ZIndex += ON_TOP;
 
-                        card.previousStack = null;
-                        var pos = card.Position;
-                        pos.Y = 0 - slotTex.Height;
-                        tween.Tween(card, new { Position = pos }, 5)
-                            .Ease(Ease.CubeInOut)
-                            .OnComplete(() => afterScoreCardAnimate(card));
-                    }
+                    card.previousStack = null;
+                    var pos = card.Position;
+                    pos.Y = 0 - slotTex.Height;
+                    tween.Tween(card, new { Position = pos }, 5)
+                        .Ease(Ease.CubeInOut)
+                        .OnComplete(() => afterScoreCardAnimate(card));
+                    
                 }
             }            
 
@@ -727,7 +783,7 @@ namespace WordGame
             if (isValidWord)
             {
                 currentWordStack.Clear();
-                foreach (var stack in table.stacks)
+                foreach (var stack in stacks)
                 {
                     if (stack.Count > 0)
                     {
@@ -736,6 +792,7 @@ namespace WordGame
                         if (stack.type == StackType.stack && !(topCard.isFaceUp))
                         {
                             topCard.isFaceUp = true;
+                            topCard.IsDraggable = true;
                         }
                     }
                 }
@@ -790,11 +847,21 @@ namespace WordGame
             card.previousStack = null;
             tween.Tween(card, new { Position = pos }, 3)
                 .Ease(Ease.CubeInOut)
-                .OnComplete(() => afterTweenReturn(card, stack, currentWordStack));
+                .OnComplete(() => afterAnimateCardReturnFromWord(card, stack, currentWordStack));
             
         }
 
-        private void PlayTopCard(Card topCard)
+        private void PlayCardAfterCard(Card card, Card destination)
+        {
+            if (destination.stack == currentWordStack)
+            {
+                currentWordStack.insertCardAfter(card, destination, true);
+                //card.SetParent(destination);
+                
+            }
+        }
+
+        private void PlayCardToEndOfCurrentWord(Card topCard)
         {
             Vector2 pos = currentWordStack.slot.Position;
             pos.X += currentWordStack.Count * stackOffsetHorizontal;
@@ -808,7 +875,7 @@ namespace WordGame
                 topCard.allowsSelection = false;
                 tween.Tween(topCard, new { Position = pos }, 3)
                     .Ease(Ease.CubeInOut)
-                    .OnComplete(() => afterTween(topCard, currentWordStack));
+                    .OnComplete(() => afterAnimateCardToStack(topCard, currentWordStack));
             }        
         }
 
@@ -825,24 +892,13 @@ namespace WordGame
                 topCard.allowsSelection = false;
                 tween.Tween(topCard, new { Position = pos }, 3)
                     .Ease(Ease.CubeInOut)
-                    .OnComplete(() => afterTweenPlayCardToEmptyStack(topCard, emptyStack));
+                    .OnComplete(() => afterAnimatePlayCardToEmptyStack(topCard, emptyStack));
             }
         }
 
-        public void Draw(GameTime gameTime)
+        public new void Draw(GameTime gameTime)
         {
-            foreach (var stack in table.stacks)
-            {
-                var slot = stack.slot;
-                //var textWidth = debugFont.MeasureString(slot.name);
-                //var textPos = new Vector2(slot.Position.X + slot.Texture.Width / 2 - textWidth.X / 2, slot.Position.Y - 16);
-                //    spriteBatch.DrawString(debugFont, slot.name, textPos, Color.Black);
-            }
-#if false
-            spriteBatch.Draw(debug, debugRect, debugColor);
-#endif
-            
-            table.Draw(gameTime);
+            base.Draw(gameTime);
             spriteBatch.Draw(addWordTex, addWordRect, addWordColor);
 
             Util.DrawString(spriteBatch, font, "Score", scoreLabelRect, Util.Alignment.Center, Color.White);
@@ -865,7 +921,7 @@ namespace WordGame
                 string word = mainGame.validWords.IsWordValid(CurrentWord) ? "+ " : "- ";
                 word += CurrentWordScore.ToString() + " " + CurrentWord;
                 
-                spriteBatch.DrawString(font, word, curWordScoreImage.Position, CurrentWordScore > 0 ? Color.LightGreen : Color.Red);
+                spriteBatch.DrawString(font, word, curWordScoreImage.Position, mainGame.validWords.IsWordValid(CurrentWord) ? Color.LightGreen : Color.Red);
                 
                 if (CurrentWordBonus > 0)
                 {

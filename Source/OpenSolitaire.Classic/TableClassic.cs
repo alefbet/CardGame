@@ -64,7 +64,7 @@ namespace OpenSolitaire.Classic {
         public bool solve;
 
         public TableClassic(Game game, SpriteBatch spriteBatch, DragonDrop<IDragonDropItem> dd, Texture2D cardBack, Texture2D slotTex, int stackOffsetH, int stackOffsetV, List<SoundEffect> soundFX)
-            : base(spriteBatch, dd, cardBack, slotTex, stackOffsetH, stackOffsetV) {
+            : base(spriteBatch, dd, stackOffsetH, stackOffsetV, cardBack, slotTex) {
 
             this.game = game;
 

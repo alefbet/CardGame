@@ -61,6 +61,7 @@
     <Compile Include="CardEngine\StackCrunch.cs" />
     <Compile Include="CardEngine\Table.cs" />
     <Compile Include="DragonDrop\CollusionItem.cs" />
+    <Compile Include="DragonDrop\DragonDropOld.cs" />
     <Compile Include="DragonDrop\DragonDrop.cs" />
     <Compile Include="DragonDrop\IDragonDropItem.cs" />
     <Compile Include="Glide\Ease.cs" />

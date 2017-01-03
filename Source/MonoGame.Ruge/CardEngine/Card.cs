@@ -7,21 +7,27 @@ using MonoGame.Ruge.DragonDrop;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Ruge.Glide;
+using Microsoft.Xna.Framework.Input.Touch;
 
 namespace MonoGame.Ruge.CardEngine {
 
     enum FlipState { none, flipIn, flipOut }
 
-    public class Card : IDragonDropItem {
-
+    public class Card : IDragonDropItem {        
+        
         // Z-Index constants
         protected const int ON_TOP = 1000;
 
         // it's a tween thing
         private Tweener tween = new Tweener();
+        
+
 
         private readonly SpriteBatch spriteBatch;
         public CardType cardType;
+
+        public float Scale { get; set; }
+        public float Rotation { get; set; }
 
         private Vector2 _position;
         public Vector2 Position {
@@ -42,6 +48,8 @@ namespace MonoGame.Ruge.CardEngine {
 
             }
         }
+
+        public new string ToString() { return suit.ToString(); }
         
         public Vector2 snapPosition { get; set; }
         public Card Child { get; set; } = null;
@@ -135,10 +143,39 @@ namespace MonoGame.Ruge.CardEngine {
 
             this.spriteBatch = spriteBatch;
             this.cardBack = cardBack;
+            Scale = 1f;
 
             Tween.TweenerImpl.SetLerper<Vector2Lerper>(typeof(Vector2));
-        }
+            
+        }        
 
+        //create a letter based card
+        public Card(string letter, Texture2D cardBack, SpriteBatch spriteBatch)
+        {
+            foreach (WordRank c in Enum.GetValues(typeof(WordRank)))
+            {
+                var details = c.ToString().Split('_');
+                if (details[0] == letter)
+                {
+                    cardType = new CardType(DeckType.word)
+                    {
+                        suit = c,
+                        rank = c
+                    };
+
+                    this.suit = c;
+                    this.rank = c;
+
+                    this.spriteBatch = spriteBatch;
+                    this.cardBack = cardBack;
+                    Scale = 1f;
+                    
+                    Tween.TweenerImpl.SetLerper<Vector2Lerper>(typeof(Vector2));
+                    return;
+                }
+            }
+            
+        }
 
         public void flipCard() {
             isFaceUp = !isFaceUp;
@@ -162,10 +199,34 @@ namespace MonoGame.Ruge.CardEngine {
             return Border.Contains(mouse);
         }
 
+        public void ProcessFreeDrag(Point point, GestureSample gesture, GameTime gameTime)
+        {
+            switch (gesture.GestureType) {
+                case GestureType.FreeDrag:
+                    if (Contains(point.ToVector2()) && IsSelected)
+                    {                        
+                        Position += gesture.Delta;
+                        Update(gameTime);
+                    }
+
+                    break;
+
+                case GestureType.DragComplete:
+                    Position += gesture.Delta;
+                   
+                    IsSelected = false;
+                    
+                    break;
+            }
+            Update(gameTime);
+            
+        }
+
+       
         #endregion
 
         #region MonoGame
-        
+
 
         public void Update(GameTime gameTime) {
             
@@ -227,8 +288,12 @@ namespace MonoGame.Ruge.CardEngine {
         public void Draw(GameTime gameTime) {
             /*if (flipAnimating != FlipState.none) spriteBatch.Draw(Texture, flipRect, Color.White);
             else*/
-            
-            if (render) spriteBatch.Draw(Texture, Position, Color.White);
+
+            if (render)
+            {                
+                
+                spriteBatch.Draw(Texture, Position, null, Color.White, Rotation, new Vector2(0,0), Scale,SpriteEffects.None, 0 );
+            }
         }
 
         #endregion
@@ -292,12 +357,11 @@ namespace MonoGame.Ruge.CardEngine {
 
         }
 
-
         public event EventHandler<CollusionEvent> Collusion;
 
-        public void OnCollusion(IDragonDropItem item) {
+        public void OnCollusion(IDragonDropItem item, Point point) {
 
-            var e = new CollusionEvent {item = item};
+            var e = new CollusionEvent {item = item, point = point};
 
             Collusion?.Invoke(this, e);
 
@@ -306,6 +370,7 @@ namespace MonoGame.Ruge.CardEngine {
         public class CollusionEvent : EventArgs {
 
             public IDragonDropItem item { get; set; }
+            public Point point { get; set; }
 
         }
 

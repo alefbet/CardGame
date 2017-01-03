@@ -49,8 +49,22 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="App42_CSHARP_SDK_2.0">
+      <HintPath>..\WordlyShared\App42_CSHARP_SDK_2.0.dll</HintPath>
+    </Reference>
+    <Reference Include="AppWarpMonoLibrary">
+      <HintPath>..\WordlyShared\AppWarpMonoLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook, Version=6.0.10.0, Culture=neutral, PublicKeyToken=58cb4f2111d1e6de, processorArchitecture=MSIL">
+      <HintPath>..\packages\Facebook.7.0.6\lib\net45\Facebook.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Plugin.Settings, Version=2.5.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xam.Plugins.Settings.2.5.1.0\lib\net45\Plugin.Settings.dll</HintPath>
@@ -78,6 +92,7 @@
     <Content Include="Content\deck\CL_2_10.png" />
     <Content Include="Content\deck\C_2_8.png" />
     <Content Include="Content\deck\D_4_5.png" />
+    <Content Include="Content\deck\ED_2_7.png" />
     <Content Include="Content\deck\ER_2_7.png" />
     <Content Include="Content\deck\E_12_2.png" />
     <Content Include="Content\deck\F_2_6.png" />
@@ -108,10 +123,12 @@
     <Content Include="Content\deck\Y_4_4.png" />
     <Content Include="Content\deck\Z_2_14.png" />
     <Content Include="Content\gameplay\addWord.png" />
+    <Content Include="Content\gameplay\Avatar.png" />
     <Content Include="Content\gameplay\clear.png" />
     <Content Include="Content\gameplay\Exit.png" />
     <Content Include="Content\gameplay\GameOver.png" />
     <Content Include="Content\gameplay\PlayAgain.png" />
+    <Content Include="Content\gameplay\wordDropSpace.png" />
     <Content Include="Content\gameplay\playingArea.png" />
     <Content Include="Content\gameplay\wrongWord.png" />
     <Content Include="Content\mainscreen\Multiplayer.png" />
@@ -136,9 +153,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Content\deck\CardsForGame-Templated.pub" />
     <None Include="Content\deck\CardsForGame.pub" />
     <None Include="Content\gameplay\Cutive-Regular.ttf" />
-    <None Include="Content\gameplay\Cutive.spritefont" />
+    <AndroidAsset Include="Content\gameplay\Cutive.spritefont" />
     <None Include="Content\gameplay\GameOver.pdn" />
     <None Include="Content\gameplay\gameOverFont.spritefont" />
     <None Include="packages.config" />
