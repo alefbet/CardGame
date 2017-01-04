@@ -88,6 +88,7 @@
     <Content Include="Content\deck\A_10_2.png" />
     <Content Include="Content\deck\B_2_8.png" />
     <Content Include="Content\deck\cardBackground.png" />
+    <Content Include="Content\deck\card_selected.png" />
     <Content Include="Content\deck\card_slot.png" />
     <Content Include="Content\deck\CL_2_10.png" />
     <Content Include="Content\deck\C_2_8.png" />
@@ -130,6 +131,7 @@
     <Content Include="Content\gameplay\PlayAgain.png" />
     <Content Include="Content\gameplay\wordDropSpace.png" />
     <Content Include="Content\gameplay\playingArea.png" />
+    <Content Include="Content\gameplay\wordily.png" />
     <Content Include="Content\gameplay\wrongWord.png" />
     <Content Include="Content\mainscreen\Multiplayer.png" />
     <Content Include="Content\mainscreen\Solitaire.png" />
@@ -144,12 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MonoGame.Ruge\MonoGame.Ruge.csproj">
-      <Project>{653b7788-0e27-4db5-8bad-088deb13d11c}</Project>
-      <Name>MonoGame.Ruge</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -17,6 +17,8 @@ using Microsoft.Xna.Framework.Input.Touch;
 
 namespace WordGame
 {
+    
+
     public class Player
     {
         public string Name;
@@ -32,15 +34,20 @@ namespace WordGame
         }
     }
 
+    
+
     public class MultiPlayerGame : Table
     {
         public ContentManager Content;        
         public MainGame mainGame;
 
+        public enum MultiplayerGameState { Connecting, WaitingForPlayers, WaitingForStart, CurrentPlayerTurn, OtherPlayerTurn, EndOfGame }
+
+        public MultiplayerGameState gameState { get; set; }
         //private Table table;
 
         public int CurrentRound = 3;
-        const int MaxRound = 10;
+        const int MaxRound = 10;        
 
         public List<Player> Players;
         public string CurrentPlayer;
@@ -57,7 +64,7 @@ namespace WordGame
 
         public bool quitGame = false;
 
-        Texture2D noCardsTex, playingAreaTex, addWordTex, gameOverTex, exitTex, clearTex, wrongWordTex, gameOverPlayAgainTex;
+        Texture2D noCardsTex, playingAreaTex, addWordTex, gameOverTex, exitTex, clearTex, wrongWordTex, gameOverPlayAgainTex, cardSelectedTex;
         Texture2D wordDropSpaceTex;
         Texture2D avatarTex;
         Texture2D scoreBackgroundTex;
@@ -146,6 +153,7 @@ namespace WordGame
             noCardsTex = Content.Load<Texture2D>("deck/noCards");
 
             cardBack = Content.Load<Texture2D>("deck/cardBackground");
+            cardSelectedTex = Content.Load<Texture2D>("deck/card_selected");
 
             soundFX = new List<SoundEffect> {
                 Content.Load<SoundEffect>("audio/card-kick"),
@@ -167,8 +175,7 @@ namespace WordGame
             exitTex = Content.Load<Texture2D>("gameplay/exit");
             exitRect = new Rectangle(1980 - 100, 0, 100, 100);
 
-            avatarTex = Content.Load<Texture2D>("gameplay/Avatar");
-            otherPlayersRect = new Rectangle(1980 - (avatarTex.Width + 10) * 3, 20+ playingAreaTex.Height - avatarTex.Height, (avatarTex.Width + 10) * 3, avatarTex.Height);
+            avatarTex = Content.Load<Texture2D>("gameplay/Avatar");            
 
             gameOverTex = Content.Load<Texture2D>("gameplay/GameOver");
             gameOverRect = new Rectangle(0,0,1980,1020);
@@ -269,9 +276,14 @@ namespace WordGame
         {
             //
             Players = new List<Player>();
-            mainGame.online.UserJoined += UserJoined;
-            mainGame.online.Connect();
             
+            
+            mainGame.online.Connect();
+            mainGame.online.GetInitialRoomState += OnGetInitialRoomState;
+            mainGame.online.UserJoined += UserJoined;
+            mainGame.online.RoomStateChanged += OnRoomStateChanged;
+            mainGame.online.RecievedGameMessage += OnReceivedMove;
+            gameState = MultiplayerGameState.Connecting;
             //Players.Add(new Player() { Name = "Player 2", AvatarColor = Color.Red, Hand = new Stack(this, avatarTex, avatarTex, spriteBatch, 0, 0) { type = StackType.undefined } });
             //Players.Add(new Player() { Name = mainGame.online.CurrentUser });            
             //Players.Add(new Player() { Name = "Player 3", AvatarColor = Color.Green, Hand = new Stack(this, avatarTex, avatarTex, spriteBatch, 0, 0) { type = StackType.undefined } });
@@ -290,9 +302,37 @@ namespace WordGame
             SetupNewRound();
         }
 
+        private void OnRoomStateChanged(object sender, Dictionary<string, object> e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnReceivedMove(object sender, string e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnGetInitialRoomState(object sender, OnRoomJoinEventArgs e)
+        {
+            if (e.Users.Count() == 1 && (e.RoomOwner == mainGame.online.CurrentUser))
+            {
+                gameState = MultiplayerGameState.WaitingForPlayers;
+            }
+            else
+            {
+                gameState = MultiplayerGameState.WaitingForStart;
+            }
+
+            Players.Clear();
+            foreach (string user in e.Users)
+            {
+                Players.Add(new Player() { Name = user, AvatarColor = Color.Red });
+            }
+        }
+
         void UserJoined(object sender, string user)
         {
-            
+            Players.Add(new Player() { Name = user, AvatarColor = Color.Cyan });
         }
 
         public void SetupNewRound()
@@ -383,6 +423,7 @@ namespace WordGame
 
                 var location = "deck/" + card.rank;
                 card.SetTexture(Content.Load<Texture2D>(location));
+                card.SelectedOverlayTexture = cardSelectedTex;
             }
 
 
@@ -512,18 +553,46 @@ namespace WordGame
 
         }
 
-       
 
-  
+
+        bool drawOverlay = true;
+        bool drawAvatars = false;
+        string overlayString = "";
         private bool dblTap = false;
 
         public new void Update(GameTime gameTime)
         {
             if (isGameOver)
-                ProcessEndOfGame();                                
+                ProcessEndOfGame();
 
+            switch (gameState)
+            {
+                case MultiplayerGameState.Connecting:
+                    drawOverlay = true;
+                    overlayString = "Connecting...";
+                    break;
+                case MultiplayerGameState.WaitingForPlayers:
+                    drawOverlay = true;
+                    overlayString = "Waiting for players...";
+                    
+                    drawAvatars = true;
+                    otherPlayersRect = Rectangle.Empty;
+                    break;
+                case MultiplayerGameState.WaitingForStart:
+                    drawOverlay = true;
+                    drawAvatars = true;
+                    otherPlayersRect = Rectangle.Empty;
+                    overlayString = "Waiting for game to start...";
+                    break;
+                case MultiplayerGameState.OtherPlayerTurn:
+                case MultiplayerGameState.CurrentPlayerTurn:
+                    otherPlayersRect = new Rectangle(1980 - (avatarTex.Width + 10) * 3, 20 + playingAreaTex.Height - avatarTex.Height, (avatarTex.Width + 10) * 3, avatarTex.Height);
+                    break;
+            }
             while (TouchPanel.IsGestureAvailable)
             {
+
+
                 var gesture = TouchPanel.ReadGesture();
                 
                 var point = gesture.Position.ToPoint();
@@ -532,54 +601,38 @@ namespace WordGame
                 Debug.WriteLine("Gesture:" + gesture.GestureType + ":" + point.ToString());
 
                 switch (gesture.GestureType)
-                {
+                {                    
                     case GestureType.FreeDrag:
+                    case GestureType.HorizontalDrag:
+                    case GestureType.VerticalDrag:
                     case GestureType.DragComplete:
-                        var sel = (dragonDrop.selectedItem == null) ? "None" : ((Card) dragonDrop.selectedItem).ToString();
-                        Debug.WriteLine("Gesture:" + gesture.GestureType + ":" + point.ToString() + ": Delta : " + gesture.Delta.ToPoint().ToString() + " : SelectedItem :" + sel);
-                        ProcessFreeDrag(point, gesture, gameTime);
+                        if (drawOverlay == false)
+                        {
+                            var sel = (dragonDrop.selectedItem == null) ? "None" : ((Card)dragonDrop.selectedItem).ToString();
+                            Debug.WriteLine("Gesture:" + gesture.GestureType + ":" + point.ToString() + ": Delta : " + gesture.Delta.ToPoint().ToString() + " : SelectedItem :" + sel);
+                            ProcessDrag(point, gesture, gameTime);
+                        }
                         break;
 
                     case GestureType.Tap:
-                        if (isGameOver)
-                        {
-                            if (exitRect.Contains(point))
-                                mainGame.Exit();
-
-                            if (gameOverPlayAgainRect.Contains(point))
-                                SetTable();
-
-                            Debug.Print(point.X + "," + point.Y);
-                        }
-                        else
-                        {
-                            if (exitRect.Contains(point)) { 
-                                quitGame = true;
+                        switch (gameState)
+                        {                            
+                            case MultiplayerGameState.CurrentPlayerTurn:
+                                if (drawSlot.Contains(point.ToVector2()))
+                                {
+                                    SelectFromDeck();
+                                    break;
+                                }
                                 break;
-                            }
-                            // check if addWord is clicks                        
-                            if (addWordRect.Contains(point) && cardsInHand.Count > 1)
-                            {
-                                //PlayAddWord();
-                                break;
-                            }
 
-                            if (drawSlot.Contains(point.ToVector2()))
-                            {
-                                SelectFromDeck();
-                                break;
-                            }
-
-                            
-                           
                         }
-                        break;
-                    case GestureType.DoubleTap:
-                        if (!isGameOver)
+
+                        if (exitRect.Contains(point))
                         {
-                            
-                        }
-                        break;
+                            mainGame.online.Disconnect();
+                            mainGame.currentAppState = MainGame.AppState.MainScreen;
+                        }                                                                                                                                                       
+                        break;                    
                 }
             }
             
@@ -665,78 +718,52 @@ namespace WordGame
 
         public new void Draw(GameTime gameTime)
         {
-            base.Draw(gameTime);                                    
-
-            var p = 0;
-            for (var player = 0; player < Players.Count; player++)            
+            
+            switch (gameState) 
             {
-                if (Players[player].Name != mainGame.online.CurrentUser)
+                case MultiplayerGameState.Connecting:
+                    break;
+
+                case MultiplayerGameState.WaitingForPlayers:
+                    
+                    break;                
+
+                case MultiplayerGameState.CurrentPlayerTurn:
+                case MultiplayerGameState.OtherPlayerTurn:
+                    
+                    base.Draw(gameTime);                    
+                    break;
+                
+            }
+
+            if (drawAvatars)
+            {
+                if (otherPlayersRect == Rectangle.Empty)
                 {
-                    var pos = otherPlayersRect;
-                    pos.X += p++ * (avatarTex.Width + 10);
-                    pos.Width = avatarTex.Width;
-                    spriteBatch.Draw(avatarTex, pos, Players[player].AvatarColor);
+                    otherPlayersRect = new Rectangle(1980/2 - ((avatarTex.Width + 10) * Players.Count - 1) / 2, 500, ((avatarTex.Width + 10) * Players.Count - 1), avatarTex.Height);
+                }
+                var p = 0;
+                for (var player = 0; player < Players.Count; player++)
+                {
+                    if (Players[player].Name != mainGame.online.CurrentUser)
+                    {
+                        var pos = otherPlayersRect;
+                        pos.X += p++ * (avatarTex.Width + 10);
+                        pos.Width = avatarTex.Width;
+                        spriteBatch.Draw(avatarTex, pos, Players[player].AvatarColor);
+                    }
                 }
             }
 
+            if (drawOverlay)
+            {               
+                spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.LightGray * 0.6f);                
+                Util.DrawString(spriteBatch, gameOverFont, overlayString, new Rectangle(0, 200, 1980, 300), Util.Alignment.Center, Color.White);                                                                                
 
-            if (isGameOver)
-            {
-                spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
-                spriteBatch.Draw(gameOverTex, gameOverRect, Color.White);
-
-                var gameOverTextRect = new Rectangle(0,  175, mainGame.MID_WIDTH - 20, 150);
-                var gameOverScoresTextRect = new Rectangle(mainGame.MID_WIDTH + 20, 175, 600, 150);
-
-                //string gameOverScoresText = completedWords.Count.ToString();
-
-                //string gameOverBestWord = "";
-                //if (completedWords.Count > 0)
-                //{
-                //    var bw = BestWord;
-                //    gameOverBestWord = bw.word + " " + "(" + bw.score + ")";                    
-                //}
-                
-
-                //var gameOverBonusText = "TBD :-)";
-                               
-                //Util.DrawString(spriteBatch, gameOverFont, "Words Found:", gameOverTextRect, Util.Alignment.Right, Color.White);
-                //Util.DrawString(spriteBatch, gameOverFont, completedWords.Count.ToString(), gameOverScoresTextRect, Util.Alignment.Left, Color.White);
-                //gameOverTextRect.Y += 100;
-                //gameOverScoresTextRect.Y += 100;
-                //Util.DrawString(spriteBatch, gameOverFont, "Best Word:", gameOverTextRect, Util.Alignment.Right, Color.White);
-                //Util.DrawString(spriteBatch, gameOverFont, gameOverBestWord, gameOverScoresTextRect, Util.Alignment.Left, Color.White);
-                //gameOverTextRect.Y += 100;
-                //gameOverScoresTextRect.Y += 100;
-                //Util.DrawString(spriteBatch, gameOverFont, "Bonuses:", gameOverTextRect, Util.Alignment.Right, Color.White);
-                //Util.DrawString(spriteBatch, gameOverFont, gameOverBonusText, gameOverScoresTextRect, Util.Alignment.Left, Color.White);
-                //gameOverTextRect.Y += 100;
-                //gameOverScoresTextRect.Y += 100;
-                //Util.DrawString(spriteBatch, gameOverFont, "Penalties:", gameOverTextRect, Util.Alignment.Right, Color.White);
-
-                //if (InvalidWords == 0)
-                //{
-                //    Util.DrawString(spriteBatch, gameOverFont, "None", gameOverScoresTextRect, Util.Alignment.Left, Color.White);                    
-                //}
-                //else
-                //{
-                //    for (var i = 0; i < InvalidWords; i++)
-                //        spriteBatch.Draw(wrongWordTex, new Rectangle(gameOverScoresTextRect.Left + (i * wrongWordTex.Width), gameOverScoresTextRect.Top, 60, 60), Color.White);
-                //}
-                
-                //gameOverTextRect.Y += 100;
-                //gameOverScoresTextRect.Y += 100;
-                //Util.DrawString(spriteBatch, gameOverFont, "Total Score:", gameOverTextRect, Util.Alignment.Right, Color.White);
-                //Util.DrawString(spriteBatch, gameOverFont, TotalScore.ToString(), gameOverScoresTextRect, Util.Alignment.Left, Color.LightGreen);
-                                
-                spriteBatch.Draw(gameOverPlayAgainTex, gameOverPlayAgainRect, Color.White);
-                
             }
 
             spriteBatch.Draw(exitTex, exitRect, Color.White);
-
-            //if (table.gameState == GameState.won) confetti.Draw(spriteBatch);
-
+            
         }
 
         

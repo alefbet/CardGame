@@ -9,8 +9,24 @@
     <Import_RootNamespace>WordGame</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Card.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\CardType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Deck.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Slot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Stack.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\StackCrunch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Table.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CheckValidWords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DragonDrop\CollusionItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DragonDrop\DragonDrop.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DragonDrop\DragonDropOld.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DragonDrop\IDragonDropItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Facebook.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\Ease.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\GlideInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\Lerper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\Tween.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\Tweener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OnlineConnectivity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MultiplayerGame.cs" />
@@ -18,6 +34,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainScreen.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SplashScreen.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewportAdapters\BoxingViewportAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewportAdapters\DefaultViewportAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewportAdapters\ScalingViewportAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewportAdapters\ViewportAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewportAdapters\WindowViewportAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\A Words.csv" />
@@ -46,5 +67,12 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\X Words.csv" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\Y Words.csv" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\Z Words.csv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Glide\license.txt" />
+    <Content Include="$(MSBuildThisFileDirectory)ViewportAdapters\license.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Glide\readme.md" />
   </ItemGroup>
 </Project>

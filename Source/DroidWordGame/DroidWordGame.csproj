@@ -181,12 +181,6 @@
     <None Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonoGame.Ruge\MonoGame.Ruge.csproj">
-      <Project>{653b7788-0e27-4db5-8bad-088deb13d11c}</Project>
-      <Name>MonoGame.Ruge</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <AndroidAsset Include="Content\splashscreen\Alef.png" />
     <AndroidAsset Include="Content\splashscreen\Bet.png" />
     <AndroidAsset Include="Content\splashscreen\Software.png" />
@@ -287,6 +281,14 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Content\deck\ED_2_7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\deck\card_selected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\gameplay\Avatar.png" />
+    <AndroidAsset Include="Content\gameplay\wordDropSpace.png" />
+    <AndroidAsset Include="Content\gameplay\wordily.png" />
   </ItemGroup>
   <Import Project="..\WordlyShared\WordlyShared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

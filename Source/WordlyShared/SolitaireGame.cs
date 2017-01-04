@@ -201,6 +201,7 @@ namespace WordGame
 
 
             cardBack = Content.Load<Texture2D>("deck/cardBackground");
+            cardSelectedTex = Content.Load<Texture2D>("deck/card_selected");
 
             soundFX = new List<SoundEffect> {
                 Content.Load<SoundEffect>("audio/card-kick"),
@@ -335,6 +336,7 @@ namespace WordGame
 
                 var location = "deck/" + card.rank;
                 card.SetTexture(Content.Load<Texture2D>(location));
+                card.SelectedOverlayTexture = cardSelectedTex;
             }
 
 
@@ -519,7 +521,7 @@ namespace WordGame
 
                 if (destination.stack == currentWordStack && card.stack != currentWordStack)                
                     PlayCardToEndOfCurrentWord(card);                
-                else
+                else if(destination.stack.type == StackType.play)
                     PlayCardAfterCard(card, destination);
             }
             else if (type == typeof(Slot))
@@ -568,10 +570,12 @@ namespace WordGame
                 switch (gesture.GestureType)
                 {
                     case GestureType.FreeDrag:
+                    case GestureType.HorizontalDrag:
+                    case GestureType.VerticalDrag:
                     case GestureType.DragComplete:
                         var sel = (dragonDrop.selectedItem == null) ? "None" : ((Card) dragonDrop.selectedItem).ToString();
                         Debug.WriteLine("Gesture:" + gesture.GestureType + ":" + point.ToString() + ": Delta : " + gesture.Delta.ToPoint().ToString() + " : SelectedItem :" + sel);
-                        ProcessFreeDrag(point, gesture, gameTime);
+                        ProcessDrag(point, gesture, gameTime);
                         break;
 
                     case GestureType.Tap:
@@ -583,7 +587,7 @@ namespace WordGame
                             if (gameOverPlayAgainRect.Contains(point))
                                 SetTable();
 
-                            Debug.Print(point.X + "," + point.Y);
+                            Debug.WriteLine("Tap: " + point.X + "," + point.Y);
                         }
                         else
                         {

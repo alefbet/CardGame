@@ -12,6 +12,14 @@ using System.Diagnostics;
 
 namespace WordGame
 {
+
+    public class OnRoomJoinEventArgs
+    {
+        public Dictionary<string, object> Properties { get; set; }
+        public String[] Users { get; set; }
+        public String RoomOwner { get; set; }
+    }
+
     public class OnlineConnectivity : ConnectionRequestListener, RoomRequestListener, NotifyListener, ZoneRequestListener, ChatRequestListener, UpdateRequestListener
     {
         string APP42_APPKEY = "33c63376a33cb750ce10d9e136df698975bcb56f9b59c46dd7490d10c879be4d";
@@ -27,18 +35,20 @@ namespace WordGame
 #if __ANDROID__
                 user = Android.OS.Build.Serial;
 #else
-                user = System.Environment.UserName;
+                user = "Test User";
 #endif
                 return user;
             }
             }
 
 
-        public EventHandler<String> UserJoined;
-        public EventHandler<String> ReceivedGameMessage;
-        public EventHandler<Dictionary<String, Object>> ReceivedGamePropertiesChanges;
+        public EventHandler<String> UserJoined;        
+        public EventHandler<OnRoomJoinEventArgs> GetInitialRoomState;
+        public EventHandler<Dictionary<String, Object>> RoomStateChanged;
+        public EventHandler<String> RecievedGameMessage;
 
         string roomId="";
+        bool sentInitialRoomProperties = false;
 
         public  string GetRoomForGame (bool createRoom = false)
         {
@@ -83,7 +93,6 @@ namespace WordGame
             WarpClient.GetInstance().AddNotificationListener(this);
             WarpClient.GetInstance().AddChatRequestListener(this);
             WarpClient.GetInstance().AddUpdateRequestListener(this);            
-
         }
         
 
@@ -131,6 +140,8 @@ namespace WordGame
             if (roomId != eventObj.getData().getId())
                 throw new Exception("Subscribed to wrong room");
             Debug.WriteLine("Room " + eventObj.getData().getId() + " found, subscribed");
+            sentInitialRoomProperties = false;
+            WarpClient.GetInstance().GetLiveRoomInfo(roomId);
             
         }
 
@@ -146,7 +157,8 @@ namespace WordGame
                 case (WarpResponseResultCode.SUCCESS):
 
                     roomId = eventObj.getData().getId();
-                    Debug.WriteLine("Room " + roomId + " found, joined");
+                    Debug.WriteLine("Room " + roomId + " found, joined, room owner:" + eventObj.getData().getRoomOwner());
+                    
                     WarpClient.GetInstance().SubscribeRoom(roomId);
                     break;
                 case (WarpResponseResultCode.RESOURCE_NOT_FOUND):
@@ -166,7 +178,10 @@ namespace WordGame
 
         public void onGetLiveRoomInfoDone(LiveRoomInfoEvent eventObj)
         {
-            
+            if (!sentInitialRoomProperties)
+            {                
+                GetInitialRoomState?.Invoke(this, new OnRoomJoinEventArgs() { Properties = eventObj.getProperties(), Users = eventObj.getJoinedUsers(), RoomOwner = eventObj.getData().getRoomOwner() });
+            }
         }
 
         public void onSetCustomRoomDataDone(LiveRoomInfoEvent eventObj)
