@@ -117,7 +117,7 @@ namespace WordGame
         }
         
 
-        public bool SubmitScore(string Level, int Score, string TopWord)
+        public bool SubmitScore(string Level, int Score)
         {
             Game game = scoreSvc.SaveUserScore(Level, CurrentUser, Score);
             

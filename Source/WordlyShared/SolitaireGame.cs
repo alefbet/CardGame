@@ -700,7 +700,7 @@ namespace WordGame
         {
             if (!postedGameScores)
             {
-                mainGame.online.SubmitScore("Level 1", TotalScore, BestWord.word);
+                mainGame.online.SubmitScore("Level 1", TotalScore);
                 postedGameScores = true;
             }
         }
@@ -998,7 +998,7 @@ namespace WordGame
         CompletedWord BestWord
             {
                 get
-                {                
+                {                                    
                     var max = completedWords[0];
 
                     foreach (var cw in completedWords)

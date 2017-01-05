@@ -131,6 +131,7 @@
     <Content Include="Content\gameplay\Exit.png" />
     <Content Include="Content\gameplay\GameOver.png" />
     <Content Include="Content\gameplay\PlayAgain.png" />
+    <Content Include="Content\gameplay\StartGame.png" />
     <Content Include="Content\gameplay\wordDropSpace.png" />
     <Content Include="Content\gameplay\playingArea.png" />
     <Content Include="Content\gameplay\wordily.png" />

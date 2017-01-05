@@ -42,8 +42,8 @@ namespace MonoGame.Ruge.CardEngine {
                     {
                         var c = new Card(deckType, myRank, myRank, cardBack, spriteBatch);
                         c.wordValue = cardDetails[0];
-                        if (c.wordValue == "Joker")
-                            c.wordValue = "?";
+                        if (c.wordValue == "JOKER")
+                            c.wordValue = ".";
                         c.wordPoints = int.Parse(cardDetails[2]);
                         cards.Add(c);
                     }

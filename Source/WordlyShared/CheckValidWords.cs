@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace WordGame
 {
@@ -27,11 +28,11 @@ namespace WordGame
                 var doc = reader.ReadToEnd();
 
                 
-                validWords.Add(doc);
+                validWords.Add(doc.Replace("\r\n", " "));
             }
         }
 
-        public bool IsWordValid(string word)
+        public bool IsWordValidNoWildcards(string word)
         {
             if (word.Length < 2)
                 return false;
@@ -43,10 +44,41 @@ namespace WordGame
                 LoadWords();
 
             word = "\n" + word + "\n";
-            
+          
             
             bool foundWord = validWords[indexToCheck].Contains(word);            
             
+
+            return foundWord;
+        }
+
+        public bool IsWordValid(string word)
+        {
+            if (word.Length < 2)
+                return false;
+
+            word = word.ToLower();
+            string pattern = "\\b" + word.ToLower() + "\\b";
+            if (validWords.Count == 0)
+                LoadWords();
+
+            bool foundWord = false;
+            if (word[0] != '.')
+            {
+                var indexToCheck = (int)word[0] - (int)'a';
+
+                foundWord = Regex.IsMatch(validWords[indexToCheck], pattern);
+            }
+            else
+            {
+                for (int i=0; i < validWords.Count; i++)
+                {
+                    foundWord= Regex.IsMatch(validWords[i], pattern);
+                    if (foundWord)
+                        return foundWord;
+                }
+
+            }
 
             return foundWord;
         }

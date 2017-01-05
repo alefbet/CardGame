@@ -58,7 +58,8 @@ namespace MonoGame.Ruge.CardEngine {
         IN_2_7,
         QU_2_9,
         TH_2_9,
-        ED_2_7
+        ED_2_7,
+        JOKER_2_0
     }
 
 

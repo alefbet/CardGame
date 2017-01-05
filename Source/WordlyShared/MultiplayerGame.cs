@@ -42,7 +42,7 @@ namespace WordGame
         public ContentManager Content;        
         public MainGame mainGame;
 
-        public enum MultiplayerGameState { Connecting, WaitingForPlayers, WaitingForStart, CurrentPlayerTurn, OtherPlayerTurn, EndOfGame }
+        public enum MultiplayerGameState { Connecting, WaitingForPlayers, WaitingForStart, Starting, CurrentPlayerTurn, OtherPlayerTurn, EndOfGame }
 
         public MultiplayerGameState gameState { get; set; }
         //private Table table;
@@ -66,13 +66,12 @@ namespace WordGame
 
         public bool quitGame = false;
 
-        Texture2D noCardsTex, playingAreaTex, addWordTex, gameOverTex, exitTex, clearTex, wrongWordTex, gameOverPlayAgainTex, cardSelectedTex;
-        Texture2D wordDropSpaceTex;        
-        Texture2D scoreBackgroundTex;
-        SpriteFont font, gameOverFont;
-        Color addWordColor;
+        Texture2D noCardsTex, playingAreaTex, addWordTex, gameOverTex, exitTex, wrongWordTex, gameOverPlayAgainTex;
+        Texture2D wordDropSpaceTex;
+        Texture2D startGameTex;        
+        SpriteFont font, gameOverFont;        
         Rectangle otherPlayersRect;
-        Rectangle scoreRect, scoreLabelRect, addWordRect, clearRect, gameOverRect;
+        Rectangle startGameRect, gameOverRect;
         Rectangle gameOverPlayAgainRect, exitRect;
 
         MoveImage curWordScoreImage = null;
@@ -95,9 +94,11 @@ namespace WordGame
         public Deck drawPile { get; set; }
         public Slot drawSlot { get; set; }
 
-        public Slot discardSlot { get; set; }        
+        public Slot discardSlot { get; set; }
 
         public Stack cardsInHand { get; set; }
+        public Slot cardsInHandSlot { get; set; }
+        
         public int TotalScore
         {
             get
@@ -114,6 +115,7 @@ namespace WordGame
         public int InvalidWords = 0;
 
         public Stack saveStack;
+
 
         public List<Vector2> stackPositions = new List<Vector2>();
         public List<CompletedWord> completedWords = new List<CompletedWord>();
@@ -180,12 +182,13 @@ namespace WordGame
             gameOverTex = Content.Load<Texture2D>("gameplay/GameOver");
             gameOverRect = new Rectangle(0,0,1980,1020);
             gameOverPlayAgainTex = Content.Load<Texture2D>("gameplay/playAgain");
-            gameOverPlayAgainRect = new Rectangle(990 - gameOverPlayAgainTex.Width / 2, 700, gameOverPlayAgainTex.Width, gameOverPlayAgainTex.Height);
+            gameOverPlayAgainRect = new Rectangle(mainGame.MID_WIDTH - gameOverPlayAgainTex.Width / 2, 700, gameOverPlayAgainTex.Width, gameOverPlayAgainTex.Height);
 
             font = Content.Load<SpriteFont>("gameplay/Cutive");
             gameOverFont = Content.Load<SpriteFont>("gameplay/gameOverFont");
 
-
+            startGameTex = Content.Load<Texture2D>("gameplay/StartGame");
+            startGameRect = new Rectangle(mainGame.MID_WIDTH - startGameTex.Width / 2, 650, startGameTex.Width, startGameTex.Height);
             
             
             drawPile = new Deck(this, DeckType.word, cardBack, slotTex, spriteBatch, stackOffsetHorizontal, stackOffsetVertical) { type = StackType.deck };
@@ -196,7 +199,7 @@ namespace WordGame
             InitializeTable();
             
             Tween.TweenerImpl.SetLerper<Vector2Lerper>(typeof(Vector2));
-            SetTable();
+            
         }
 
 
@@ -233,14 +236,14 @@ namespace WordGame
             };
             
 
-            var cardsInHandSlot = new Slot(playingAreaTex, spriteBatch)
+            cardsInHandSlot = new Slot(playingAreaTex, spriteBatch)
             {
                 Position = new Vector2((x + slotTex.Width) * 2, y),
-                name = "Word"
+                name = "Cards In Hand"
 
-            };            
+            };
 
-            cardsInHand = AddStack(cardsInHandSlot, StackType.hand, StackMethod.horizontal);
+            cardsInHand = AddStack(cardsInHandSlot, StackType.hand, StackMethod.draggable);
 
             y += slotTex.Height + 20;
 
@@ -285,18 +288,45 @@ namespace WordGame
             mainGame.online.RoomStateChanged += OnRoomStateChanged;
             mainGame.online.RecievedGameMessage += OnReceivedMove;
             gameState = MultiplayerGameState.Connecting;
-            
+
+            SetTable();
+        }
+
+        public void StartGame()
+        {
+            gameState = MultiplayerGameState.Starting;
+
             foreach (var stack in stacks)
             {
                 stack.Clear();
             }
 
+
             
-            drawPile.freshDeck();
-            drawPile.shuffle(1);
-            CurrentRound = 3;            
+            
+            Random rand = new Random();
+            int randomPlayer = rand.Next(Players.Count());
+            CurrentPlayer = Players[randomPlayer].Name;
+
+            InitializeTable();
+            SetupCardsForRound(CurrentRound, randomPlayer);
+
             SetTable();
             SetupNewRound();
+            
+        }
+
+        private void SetupCardsForRound(int Round, int startPlayer)
+        {
+            drawPile.freshDeck();
+            drawPile.shuffle();
+            for (var c=0; c < Round; c++)
+            {
+                for (int p= startPlayer; p < startPlayer + Players.Count(); p++)
+                {
+                    Players[p].Hand.addCard(drawPile.drawCard());
+                }
+            }
         }
 
         private void OnRoomStateChanged(object sender, Dictionary<string, object> e)
@@ -368,10 +398,6 @@ namespace WordGame
         public void SetupNewRound()
         {
             var xBufferForDragDrop = 20;
-
-
-
-
             
             var delay = 0;            
             for (var c = 0; c < CurrentRound; c++)
@@ -438,10 +464,8 @@ namespace WordGame
             //Load PlayerStacks
 
             
-            drawPile.UpdatePositions();                        
-            quitGame = false;
-
-            completedWords = new List<CompletedWord>();            
+            drawPile.UpdatePositions();                                    
+                      
 
             foreach (var card in drawPile.cards)
             {
@@ -457,7 +481,18 @@ namespace WordGame
                 card.SelectedOverlayTexture = cardSelectedTex;
             }
 
-
+            foreach (var p in Players)
+            {                
+                if (p.Name == mainGame.online.CurrentUser)
+                {
+                    p.Hand = cardsInHand;                    
+                }
+                else
+                {
+                    var slot = new Slot(p.Avatar, spriteBatch) { IsDraggable = false };
+                    p.Hand = AddStack(slot, StackType.undefined, StackMethod.undefined);
+                }
+            }
 
             drawSlot.stack = drawPile;
             
@@ -615,6 +650,12 @@ namespace WordGame
                     otherPlayersRect = Rectangle.Empty;
                     overlayString = "Waiting for game to start...";
                     break;
+                case MultiplayerGameState.Starting:
+                    drawOverlay = true;
+                    drawAvatars = true;
+                    otherPlayersRect = Rectangle.Empty;
+                    overlayString = "Starting \nSelecting first dealer...";
+                    break;
                 case MultiplayerGameState.OtherPlayerTurn:
                 case MultiplayerGameState.CurrentPlayerTurn:
                     otherPlayersRect = new Rectangle(1980 - (avatarWidth+ 10) * 3, 20 + playingAreaTex.Height - avatarWidth, (avatarWidth + 10) * 3, avatarWidth);
@@ -647,7 +688,14 @@ namespace WordGame
 
                     case GestureType.Tap:
                         switch (gameState)
-                        {                            
+                        {
+                            case MultiplayerGameState.WaitingForPlayers:
+                                if (startGameRect.Contains(point))
+                                {
+
+                                    StartGame();
+                                }
+                                break;
                             case MultiplayerGameState.CurrentPlayerTurn:
                                 if (drawSlot.Contains(point.ToVector2()))
                                 {
@@ -756,6 +804,8 @@ namespace WordGame
                     break;
 
                 case MultiplayerGameState.WaitingForPlayers:
+                    if (Players.Count() > 1)
+                        spriteBatch.Draw(startGameTex, startGameRect, Color.White);
 
                     break;
 
@@ -770,7 +820,7 @@ namespace WordGame
             if (drawOverlay)
             {
                 spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.LightGray * 0.6f);
-                Util.DrawString(spriteBatch, gameOverFont, overlayString, new Rectangle(0, 200, 1980, 300), Util.Alignment.Center, Color.White);
+                Util.DrawString(spriteBatch, gameOverFont, overlayString, new Rectangle(0, 200, 1980, 250), Util.Alignment.Center, Color.White);
             }
 
 
@@ -778,7 +828,7 @@ namespace WordGame
             {
                 if (otherPlayersRect == Rectangle.Empty)
                 {
-                    otherPlayersRect = new Rectangle(1980 / 2 - ((avatarWidth + 10) * Players.Count - 1) / 2, 500, ((avatarWidth + 10) * Players.Count - 1), avatarWidth);
+                    otherPlayersRect = new Rectangle(1980 / 2 - ((avatarWidth + 10) * Players.Count - 1) / 2, 400, ((avatarWidth + 10) * Players.Count - 1), avatarWidth);
                 }
                 var p = 0;
                 for (var player = 0; player < Players.Count; player++)
@@ -788,7 +838,7 @@ namespace WordGame
                         var pos = otherPlayersRect;
                         pos.X += p++ * (avatarWidth + 10);
                         pos.Width = avatarWidth;
-                        spriteBatch.Draw(Players[player].Avatar, pos, Color.White);
+                        spriteBatch.Draw (Players[player].Avatar, pos, Color.White);                        
                     }
                 }
             }
