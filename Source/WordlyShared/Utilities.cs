@@ -2,7 +2,14 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
+#if WINDOWS_UAP
+using Windows.Web.Http;
+#else
+using System.Net;
+#endif
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WordGame
 {
@@ -39,6 +46,42 @@ namespace WordGame
                 origin.Y -= bounds.Height / 2 - size.Y / 2;
 
             spriteBatch.DrawString(font, text, pos, color, 0, origin, 1, SpriteEffects.None, 0);
+        }
+        
+        public async static Task<Stream> GetWebImageAsStream(string uri)
+        {
+
+#if WINDOWS_UAP
+            HttpClient client = new HttpClient();
+            Stream webStream = (Stream) await client.GetInputStreamAsync(new Uri(uri));
+#else
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);            
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            Stream webStream = response.GetResponseStream();
+#endif
+            Stream cachedStream = CacheStream(webStream);
+
+            return cachedStream;
+        }
+
+
+        static Stream CacheStream(Stream stream)
+        {
+            Stream cachedStream = new MemoryStream();
+
+            const int bufferSize = 1500;
+            byte[]buffer = new byte[bufferSize];
+
+            int read = 0;
+
+            while ((read = stream.Read(buffer, 0, bufferSize)) != 0)
+            {
+                cachedStream.Write(buffer, 0, read);
+            }
+
+            cachedStream.Seek(0, SeekOrigin.Begin);
+
+            return cachedStream;
         }
     }
 }

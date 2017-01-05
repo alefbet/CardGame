@@ -25,9 +25,10 @@ namespace WordGame
         public Stack Hand;
         public List<String> WordsInHand;
         public List<int> Scores;
-        public string Avatar;
+        public Texture2D Avatar;
         public Color AvatarColor;
         public MoveImage scoreImageAnimate;
+        public bool LeftGame;
 
         public Player()
         {            
@@ -54,6 +55,7 @@ namespace WordGame
 
         const int CARD_WIDTH = 210;
         const int CARD_HEIGHT = 252;
+        const int avatarWidth = 150;
         public static new int stackOffsetHorizontal = 50;
         public static new int stackOffsetVertical = 50;
         const int numWordSpaces = 5;
@@ -65,8 +67,7 @@ namespace WordGame
         public bool quitGame = false;
 
         Texture2D noCardsTex, playingAreaTex, addWordTex, gameOverTex, exitTex, clearTex, wrongWordTex, gameOverPlayAgainTex, cardSelectedTex;
-        Texture2D wordDropSpaceTex;
-        Texture2D avatarTex;
+        Texture2D wordDropSpaceTex;        
         Texture2D scoreBackgroundTex;
         SpriteFont font, gameOverFont;
         Color addWordColor;
@@ -174,8 +175,7 @@ namespace WordGame
             
             exitTex = Content.Load<Texture2D>("gameplay/exit");
             exitRect = new Rectangle(1980 - 100, 0, 100, 100);
-
-            avatarTex = Content.Load<Texture2D>("gameplay/Avatar");            
+            
 
             gameOverTex = Content.Load<Texture2D>("gameplay/GameOver");
             gameOverRect = new Rectangle(0,0,1980,1020);
@@ -276,19 +276,16 @@ namespace WordGame
         {
             //
             Players = new List<Player>();
-            
-            
+
+
             mainGame.online.Connect();
             mainGame.online.GetInitialRoomState += OnGetInitialRoomState;
             mainGame.online.UserJoined += UserJoined;
+            mainGame.online.UserLeft += UserLeft;
             mainGame.online.RoomStateChanged += OnRoomStateChanged;
             mainGame.online.RecievedGameMessage += OnReceivedMove;
             gameState = MultiplayerGameState.Connecting;
-            //Players.Add(new Player() { Name = "Player 2", AvatarColor = Color.Red, Hand = new Stack(this, avatarTex, avatarTex, spriteBatch, 0, 0) { type = StackType.undefined } });
-            //Players.Add(new Player() { Name = mainGame.online.CurrentUser });            
-            //Players.Add(new Player() { Name = "Player 3", AvatarColor = Color.Green, Hand = new Stack(this, avatarTex, avatarTex, spriteBatch, 0, 0) { type = StackType.undefined } });
-            //Players.Add(new Player() { Name = "Player 4", AvatarColor = Color.Blue, Hand = new Stack(this, avatarTex, avatarTex, spriteBatch, 0, 0) { type = StackType.undefined } });
-
+            
             foreach (var stack in stacks)
             {
                 stack.Clear();
@@ -312,7 +309,7 @@ namespace WordGame
             throw new NotImplementedException();
         }
 
-        private void OnGetInitialRoomState(object sender, OnRoomJoinEventArgs e)
+        private async void OnGetInitialRoomState(object sender, OnRoomJoinEventArgs e)
         {
             if (e.Users.Count() == 1 && (e.RoomOwner == mainGame.online.CurrentUser))
             {
@@ -326,13 +323,46 @@ namespace WordGame
             Players.Clear();
             foreach (string user in e.Users)
             {
-                Players.Add(new Player() { Name = user, AvatarColor = Color.Red });
+                Debug.WriteLine("Initializing room: " + e.RoomId + "  User: " + user);
+                var playerAvatar = await Util.GetWebImageAsStream("https://api.adorable.io/avatars/" + avatarWidth + "/wordly-" + user);
+                Players.Add(new Player() { Name = user, AvatarColor = Color.Red, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
             }
         }
 
-        void UserJoined(object sender, string user)
+        async void UserJoined(object sender, string user)
         {
-            Players.Add(new Player() { Name = user, AvatarColor = Color.Cyan });
+            var playerAvatar = await Util.GetWebImageAsStream("https://api.adorable.io/avatars/" + avatarWidth + "/wordly-" + user);
+            Players.Add(new Player() { Name = user, AvatarColor = Color.Red, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
+        }
+
+        void UserLeft(object sender, string user)
+        {
+
+            
+            Player playerObj = null;
+            foreach (var p in Players)
+            {
+                if (p.Name == user)
+                {
+                    p.LeftGame = true;
+                    playerObj = p;
+                }
+            }
+            switch (gameState)
+            {
+                case MultiplayerGameState.Connecting:
+                case MultiplayerGameState.WaitingForPlayers:
+                case MultiplayerGameState.WaitingForStart:
+                    if (playerObj != null)
+                        Players.Remove(playerObj);
+                    break;
+                default:
+                    if (Players.Where(p => p.LeftGame == false).Count() == 1)
+                        gameState = MultiplayerGameState.EndOfGame;
+                    break;
+            }
+
+            //todo -- person that leaves is current player            
         }
 
         public void SetupNewRound()
@@ -354,6 +384,7 @@ namespace WordGame
                     moveCard.Position = drawSlot.Position;
 
                     bool isCurrentUser = Players[player].Name == mainGame.online.CurrentUser;
+                    
                     moveCard.isFaceUp = isCurrentUser;
                     moveCard.IsDraggable = isCurrentUser;
 
@@ -368,11 +399,11 @@ namespace WordGame
                     {                        
                         pos = otherPlayersRect.Location.ToVector2();
                         
-                        pos.X += (p++ * (10 + avatarTex.Width) + 6f);
+                        pos.X += (p++ * (10 + avatarWidth) + 6f);
 
                     }
 
-                    var scale = isCurrentUser ? 1f :  ((float) avatarTex.Width) / ((float) slotTex.Height);
+                    var scale = isCurrentUser ? 1f :  ((float) avatarWidth) / ((float) slotTex.Height);
                     var rotation = isCurrentUser ? 0f : 2f * Math.PI;
                     moveCard.ZIndex += ON_TOP;
                     moveCard.snapPosition = pos;
@@ -586,7 +617,7 @@ namespace WordGame
                     break;
                 case MultiplayerGameState.OtherPlayerTurn:
                 case MultiplayerGameState.CurrentPlayerTurn:
-                    otherPlayersRect = new Rectangle(1980 - (avatarTex.Width + 10) * 3, 20 + playingAreaTex.Height - avatarTex.Height, (avatarTex.Width + 10) * 3, avatarTex.Height);
+                    otherPlayersRect = new Rectangle(1980 - (avatarWidth+ 10) * 3, 20 + playingAreaTex.Height - avatarWidth, (avatarWidth + 10) * 3, avatarWidth);
                     break;
             }
             while (TouchPanel.IsGestureAvailable)
@@ -714,33 +745,40 @@ namespace WordGame
                     .OnComplete(() => afterAnimateCardToStack(topCard, cardsInHand));
             }        
         }
-        
+
 
         public new void Draw(GameTime gameTime)
         {
-            
-            switch (gameState) 
+
+            switch (gameState)
             {
                 case MultiplayerGameState.Connecting:
                     break;
 
                 case MultiplayerGameState.WaitingForPlayers:
-                    
-                    break;                
+
+                    break;
 
                 case MultiplayerGameState.CurrentPlayerTurn:
                 case MultiplayerGameState.OtherPlayerTurn:
-                    
-                    base.Draw(gameTime);                    
+
+                    base.Draw(gameTime);
                     break;
-                
+
             }
+
+            if (drawOverlay)
+            {
+                spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.LightGray * 0.6f);
+                Util.DrawString(spriteBatch, gameOverFont, overlayString, new Rectangle(0, 200, 1980, 300), Util.Alignment.Center, Color.White);
+            }
+
 
             if (drawAvatars)
             {
                 if (otherPlayersRect == Rectangle.Empty)
                 {
-                    otherPlayersRect = new Rectangle(1980/2 - ((avatarTex.Width + 10) * Players.Count - 1) / 2, 500, ((avatarTex.Width + 10) * Players.Count - 1), avatarTex.Height);
+                    otherPlayersRect = new Rectangle(1980 / 2 - ((avatarWidth + 10) * Players.Count - 1) / 2, 500, ((avatarWidth + 10) * Players.Count - 1), avatarWidth);
                 }
                 var p = 0;
                 for (var player = 0; player < Players.Count; player++)
@@ -748,24 +786,17 @@ namespace WordGame
                     if (Players[player].Name != mainGame.online.CurrentUser)
                     {
                         var pos = otherPlayersRect;
-                        pos.X += p++ * (avatarTex.Width + 10);
-                        pos.Width = avatarTex.Width;
-                        spriteBatch.Draw(avatarTex, pos, Players[player].AvatarColor);
+                        pos.X += p++ * (avatarWidth + 10);
+                        pos.Width = avatarWidth;
+                        spriteBatch.Draw(Players[player].Avatar, pos, Color.White);
                     }
                 }
             }
 
-            if (drawOverlay)
-            {               
-                spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.LightGray * 0.6f);                
-                Util.DrawString(spriteBatch, gameOverFont, overlayString, new Rectangle(0, 200, 1980, 300), Util.Alignment.Center, Color.White);                                                                                
-
-            }
-
             spriteBatch.Draw(exitTex, exitRect, Color.White);
-            
-        }
 
+
+        }
         
     }
 }

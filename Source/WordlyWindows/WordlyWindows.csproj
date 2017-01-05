@@ -49,10 +49,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="App42_CSHARP_SDK_2.0">
-      <HintPath>..\WordlyShared\App42_CSHARP_SDK_2.0.dll</HintPath>
+    <Reference Include="App42_CSHARP_SDK_2.2, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\WordlyShared\App42_CSHARP_SDK_2.2.dll</HintPath>
     </Reference>
-    <Reference Include="AppWarpMonoLibrary">
+    <Reference Include="AppWarpMonoLibrary, Version=1.0.5161.23476, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\WordlyShared\AppWarpMonoLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Facebook, Version=6.0.10.0, Culture=neutral, PublicKeyToken=58cb4f2111d1e6de, processorArchitecture=MSIL">

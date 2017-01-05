@@ -90,6 +90,7 @@ namespace WordGame
         {
             // TODO: Add your initialization logic here
             viewPort = new BoxingViewportAdapter(Window, GraphicsDevice, WINDOW_WIDTH, WINDOW_HEIGHT);
+            
             dragonDrop = new DragonDrop<IDragonDropItem>(this, viewPort);
             base.Initialize();
         }

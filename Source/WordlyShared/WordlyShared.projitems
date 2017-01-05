@@ -28,8 +28,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Glide\Tween.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Glide\Tweener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainGame.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OnlineConnectivity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MultiplayerGame.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OnlineConnectivity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SolitaireGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainScreen.cs" />
@@ -73,6 +73,7 @@
     <Content Include="$(MSBuildThisFileDirectory)ViewportAdapters\license.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)App42_CSHARP_SDK_2.2.dll" />
     <None Include="$(MSBuildThisFileDirectory)Glide\readme.md" />
   </ItemGroup>
 </Project>

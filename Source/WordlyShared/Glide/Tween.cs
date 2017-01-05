@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace MonoGame.Ruge.Glide {
@@ -175,9 +176,13 @@ namespace MonoGame.Ruge.Glide {
         /// <param name="values">The values to apply, in an anonymous type ( new { prop1 = 100, prop2 = 0} ).</param>
         /// <returns>A reference to this.</returns>
         public Tween From(object values) {
+#if WINDOWS_UAP
+            var props = values.GetType().GetTypeInfo().DeclaredProperties;
+#else
             var props = values.GetType().GetProperties();
-            for (var i = 0; i < props.Length; ++i) {
-                var property = props[i];
+#endif            
+            foreach (var property in props) {
+
                 var propValue = property.GetValue(values, null);
 
                 var index = -1;
@@ -309,9 +314,9 @@ namespace MonoGame.Ruge.Glide {
             return this;
         }
 
-        #endregion
+#endregion
 
-        #region Control
+#region Control
 
         /// <summary>
         ///     Cancel tweening given properties.
@@ -374,6 +379,6 @@ namespace MonoGame.Ruge.Glide {
             Paused = false;
         }
 
-        #endregion
+#endregion
     }
 }

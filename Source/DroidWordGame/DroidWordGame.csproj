@@ -56,8 +56,9 @@
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="App42_CSHARP_SDK_2.0">
-      <HintPath>..\WordlyShared\App42_CSHARP_SDK_2.0.dll</HintPath>
+    <Reference Include="App42_CSHARP_SDK_2.2, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\WordlyShared\App42_CSHARP_SDK_2.2.dll</HintPath>
     </Reference>
     <Reference Include="AppWarpMonoLibrary">
       <HintPath>..\WordlyShared\AppWarpMonoLibrary.dll</HintPath>

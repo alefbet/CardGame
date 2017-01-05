@@ -18,7 +18,9 @@ namespace WordGame
         public Dictionary<string, object> Properties { get; set; }
         public String[] Users { get; set; }
         public String RoomOwner { get; set; }
+        public String RoomId { get; set; }
     }
+
 
     public class OnlineConnectivity : ConnectionRequestListener, RoomRequestListener, NotifyListener, ZoneRequestListener, ChatRequestListener, UpdateRequestListener
     {
@@ -34,6 +36,16 @@ namespace WordGame
                 string user;
 #if __ANDROID__
                 user = Android.OS.Build.Serial;
+#elif WINDOW_UAP 
+                var token = HardwareIdentification.GetPackageSpecificToken(null);
+	            var hardwareId = token.Id;
+	            var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(hardwareId);
+
+	            byte[] bytes = new byte[hardwareId.Length];
+	            dataReader.ReadBytes(bytes);
+
+            	user = Convert.ToBase64String(bytes);
+}
 #else
                 user = "Test User";
 #endif
@@ -42,7 +54,8 @@ namespace WordGame
             }
 
 
-        public EventHandler<String> UserJoined;        
+        public EventHandler<String> UserJoined;
+        public EventHandler<String> UserLeft;
         public EventHandler<OnRoomJoinEventArgs> GetInitialRoomState;
         public EventHandler<Dictionary<String, Object>> RoomStateChanged;
         public EventHandler<String> RecievedGameMessage;
@@ -84,15 +97,23 @@ namespace WordGame
 
         public OnlineConnectivity()
         {
-            serviceAPI = new ServiceAPI(APP42_APPKEY, APP42_APPSECRET);
-            scoreSvc = serviceAPI.BuildScoreBoardService();
-            WarpClient.initialize(APP42_APPKEY, APP42_APPSECRET);
-            WarpClient.GetInstance().AddConnectionRequestListener(this);
-            WarpClient.GetInstance().AddRoomRequestListener(this);            
-            WarpClient.GetInstance().AddZoneRequestListener(this);
-            WarpClient.GetInstance().AddNotificationListener(this);
-            WarpClient.GetInstance().AddChatRequestListener(this);
-            WarpClient.GetInstance().AddUpdateRequestListener(this);            
+            try
+            {
+                serviceAPI = new ServiceAPI(APP42_APPKEY, APP42_APPSECRET);
+                scoreSvc = serviceAPI.BuildScoreBoardService();
+
+                WarpClient.initialize(APP42_APPKEY, APP42_APPSECRET);
+                WarpClient.GetInstance().AddConnectionRequestListener(this);
+                WarpClient.GetInstance().AddRoomRequestListener(this);
+                WarpClient.GetInstance().AddZoneRequestListener(this);
+                WarpClient.GetInstance().AddNotificationListener(this);
+                WarpClient.GetInstance().AddChatRequestListener(this);
+                WarpClient.GetInstance().AddUpdateRequestListener(this);
+            }
+            catch (Exception e)
+            {
+
+            }
         }
         
 
@@ -180,7 +201,8 @@ namespace WordGame
         {
             if (!sentInitialRoomProperties)
             {                
-                GetInitialRoomState?.Invoke(this, new OnRoomJoinEventArgs() { Properties = eventObj.getProperties(), Users = eventObj.getJoinedUsers(), RoomOwner = eventObj.getData().getRoomOwner() });
+                GetInitialRoomState?.Invoke(this, new OnRoomJoinEventArgs() { Properties = eventObj.getProperties(), Users = eventObj.getJoinedUsers(), RoomOwner = eventObj.getData().getRoomOwner(), RoomId = eventObj.getData().getId() });
+                sentInitialRoomProperties = true;
             }
         }
 
@@ -236,7 +258,8 @@ namespace WordGame
 
         public void onUserLeftRoom(RoomData eventObj, string username)
         {
-            throw new NotImplementedException();
+            Debug.WriteLine("User left room: " + username);
+            UserLeft?.Invoke(this, username);
         }
 
         public void onUserJoinedRoom(RoomData eventObj, string username)

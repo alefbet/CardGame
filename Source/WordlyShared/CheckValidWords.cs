@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Reflection;
 
 namespace WordGame
 {
@@ -17,10 +18,15 @@ namespace WordGame
             for (char c = 'A'; c <= 'Z'; c++)
             { 
                 var resource = "WordGame.ValidWords." + c + " Words.csv";
+#if WINDOWS_UAP
+                var stream = type.GetTypeInfo().Assembly.GetManifestResourceStream(resource);
+#else
                 var stream = type.Assembly.GetManifestResourceStream(resource);
+#endif
                 var reader = new StreamReader(stream);                
                 var doc = reader.ReadToEnd();
 
+                
                 validWords.Add(doc);
             }
         }

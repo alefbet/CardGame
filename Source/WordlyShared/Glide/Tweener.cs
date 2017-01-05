@@ -75,9 +75,12 @@ namespace MonoGame.Ruge.Glide {
 
                 //	Prevent tweening on structs if you cheat by casting target as Object
                 var targetType = target.GetType();
+#if WINDOWS_UAP
+#else
+
                 if (targetType.IsValueType)
                     throw new Exception("Target of tween cannot be a struct!");
-
+#endif
                 var tween = new Tween(target, duration, delay, this);
                 AddAndRemove();
                 toAdd.Add(tween);
@@ -263,7 +266,7 @@ namespace MonoGame.Ruge.Glide {
                 }
             }
 
-            #region Target control
+#region Target control
 
             /// <summary>
             ///     Cancel all tweens with the given target.
@@ -339,7 +342,7 @@ namespace MonoGame.Ruge.Glide {
                 }
             }
 
-            #endregion
+#endregion
         }
     }
 }
