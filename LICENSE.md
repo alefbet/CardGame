@@ -1,19 +1,12 @@
 ###Source Code: 
-**OpenSolitaire** (game logic) - [Attribution (a) 2016 HathorsLove.com](https://github.com/theNWO/licensing/blob/master/licenses/NWO-CS) (NWO-CS)
+**Wordily** (game logic) - No specified license terms
 
 **MonoGame.Ruge** (playing card engine) - [Attribution (a) 2016 MetaSmug](https://github.com/theNWO/licensing/blob/master/licenses/NWO-CS) (NWO-CS)
 
 **MonoGame** (distribution framework) - [Copyright (c) 2016 The MonoGame Team](https://github.com/mono/MonoGame/blob/develop/LICENSE.txt) (MS-PL)
 
 ###Graphics:
-
-####Branding Logo:
-Copyright (c) 2016 MetaSmug, all rights reserved.  If you're not submitting Pull Requests to [this repo](https://github.com/SoundGoddess/OpenSolitaire/) then please remove before distributing your game.
-
-####Card PNG Assets:
-Public Domain ([OpenGameArt.org](http://opengameart.org/content/playing-cards-vector-png))
-
-CC BY-SA 3.0 ([Cburnett](http://en.wikipedia.org/wiki/User:Cburnett))
+All content is self generated or public domain
 
 ###Audio and Music: 
 
