@@ -24,8 +24,8 @@ namespace WordGame
         
                 
 
-        Texture2D solitaire, ranked, multiplayer, settings, sound, soundOff, info;
-        Rectangle solitaireRect, rankedRect, multiplayerRect, settingsRect, soundRect, infoRect;
+        Texture2D solitaire, timedSolitaire, multiplayer, settings, sound, soundOff, info;
+        Rectangle solitaireRect, timedSolitaireRect, multiplayerRect, settingsRect, soundRect, infoRect;
 
 
 
@@ -45,8 +45,8 @@ namespace WordGame
             solitaireRect = new Rectangle(100, 300, 500, 500);
             
 
-            ranked = Content.Load<Texture2D>("mainscreen/solitaire");
-            rankedRect = new Rectangle(740, 300, 500, 500);
+            timedSolitaire = Content.Load<Texture2D>("mainscreen/solitaire");
+            timedSolitaireRect = new Rectangle(740, 300, 500, 500);
             
 
             multiplayer = Content.Load<Texture2D>("mainscreen/multiplayer");
@@ -86,6 +86,8 @@ namespace WordGame
                     case GestureType.Tap:
                         if (solitaireRect.Contains(point))
                             mainGame.currentAppState = MainGame.AppState.SolitaireGame;
+                        else if (timedSolitaireRect.Contains(point))
+                            mainGame.currentAppState = MainGame.AppState.TimedSolitaireGame;
                         else if (multiplayerRect.Contains(point))
                             mainGame.currentAppState = MainGame.AppState.MultiPlayerGame;
                             
@@ -97,7 +99,7 @@ namespace WordGame
         public void Draw(GameTime time)
         {
             spriteBatch.Draw(solitaire, solitaireRect, Color.White);
-            spriteBatch.Draw(ranked, rankedRect, Color.White);
+            spriteBatch.Draw(timedSolitaire, timedSolitaireRect, Color.White);
             spriteBatch.Draw(multiplayer, multiplayerRect, Color.White);
             spriteBatch.Draw(sound, soundRect, Color.White);
 

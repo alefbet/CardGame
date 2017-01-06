@@ -30,6 +30,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\Glide\Tweener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MultiplayerGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OnlineConnectivity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TimedSolitaireGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SolitaireGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainScreen.cs" />

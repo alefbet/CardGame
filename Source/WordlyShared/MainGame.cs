@@ -15,7 +15,7 @@ namespace WordGame
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        public enum AppState { SplashScreen, MainScreen, SolitaireGame, RatedSolitaireGame, MultiPlayerGame }
+        public enum AppState { SplashScreen, MainScreen, SolitaireGame, TimedSolitaireGame, MultiPlayerGame }
 
         AppState _currentAppState = AppState.SplashScreen;
         public AppState currentAppState
@@ -50,6 +50,7 @@ namespace WordGame
         SplashScreen splashScreen;
         public MainScreen mainScreen;
         public SolitaireGame solitaireGame;
+        public TimedSolitaireGame timedSolitaireGame;
         public MultiPlayerGame multiplayerGame;
 
         public OnlineConnectivity online;
@@ -109,6 +110,7 @@ namespace WordGame
             mainScreen = new MainScreen(Content, spriteBatch, this);
             solitaireGame = new SolitaireGame(spriteBatch, dragonDrop, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
             multiplayerGame = new MultiPlayerGame(spriteBatch, dragonDrop, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
+            timedSolitaireGame = new TimedSolitaireGame(spriteBatch, dragonDrop, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
 
             background = Content.Load<Texture2D>("tiledBackground");
 
@@ -156,8 +158,10 @@ namespace WordGame
                     mainScreen.Update(gameTime);
                     break;
                 case AppState.SolitaireGame:
-                case AppState.RatedSolitaireGame:
                     solitaireGame.Update(gameTime);
+                    break;
+                case AppState.TimedSolitaireGame:
+                    timedSolitaireGame.Update(gameTime);
                     break;
                 case AppState.MultiPlayerGame:
                     multiplayerGame.Update(gameTime);
@@ -191,8 +195,10 @@ namespace WordGame
                     break;
 
                 case AppState.SolitaireGame:
-                case AppState.RatedSolitaireGame:
                     solitaireGame.Draw(gameTime);
+                    break;
+                case AppState.TimedSolitaireGame:
+                    timedSolitaireGame.Draw(gameTime);
                     break;
 
                 case AppState.MultiPlayerGame:
