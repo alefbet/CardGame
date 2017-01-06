@@ -9,25 +9,25 @@
     <Import_RootNamespace>WordGame</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Card.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\CardType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Deck.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Slot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Stack.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\StackCrunch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CardEngine\Table.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CheckValidWords.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DragonDrop\CollusionItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DragonDrop\DragonDrop.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DragonDrop\DragonDropOld.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DragonDrop\IDragonDropItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Facebook.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\Ease.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\GlideInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\Lerper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\Tween.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Glide\Tweener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainGame.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\CardEngine\Card.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\CardEngine\CardType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\CardEngine\Deck.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\CardEngine\Slot.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\CardEngine\Stack.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\CardEngine\StackCrunch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\CardEngine\Table.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\DragonDrop\CollusionItem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\DragonDrop\DragonDrop.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\DragonDrop\DragonDropOld.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\DragonDrop\IDragonDropItem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\Glide\Ease.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\Glide\GlideInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\Glide\Lerper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\Glide\Tween.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MonoGameShared\Glide\Tweener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MultiplayerGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OnlineConnectivity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TimedSolitaireGame.cs" />
@@ -70,11 +70,14 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\Z Words.csv" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)MonoGameShared\Glide\license.txt" />
+    <Content Include="$(MSBuildThisFileDirectory)Glide\license.txt" />
     <Content Include="$(MSBuildThisFileDirectory)ViewportAdapters\license.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)App42_CSHARP_SDK_2.2.dll" />
-    <None Include="$(MSBuildThisFileDirectory)MonoGameShared\Glide\readme.md" />
+    <None Include="$(MSBuildThisFileDirectory)Glide\readme.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)MonoGameShared\" />
   </ItemGroup>
 </Project>

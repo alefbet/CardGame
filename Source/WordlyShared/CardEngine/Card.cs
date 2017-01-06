@@ -65,6 +65,7 @@ namespace MonoGame.Ruge.CardEngine {
         public Stack stack { get; set; }
         public int ZIndex { get; set; } = 1;
 
+        public string StackName { get { return stack.name; } }
         public Stack previousStack { get; set; }
         /*
         private FlipState flipAnimating = FlipState.none;
@@ -152,7 +153,7 @@ namespace MonoGame.Ruge.CardEngine {
 
         //create a letter based card
         public Card(string letter, Texture2D cardBack, SpriteBatch spriteBatch)
-        {
+        {            
             foreach (WordRank c in Enum.GetValues(typeof(WordRank)))
             {
                 var details = c.ToString().Split('_');
@@ -166,6 +167,10 @@ namespace MonoGame.Ruge.CardEngine {
 
                     this.suit = c;
                     this.rank = c;
+                    this.wordPoints = int.Parse(details[2]);
+                    this.wordValue = details[0];
+                    if (this.wordValue == "JOKER")
+                        this.wordValue = ".";
 
                     this.spriteBatch = spriteBatch;
                     this.cardBack = cardBack;

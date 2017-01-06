@@ -33,7 +33,7 @@ namespace WordGame
 
         const int CARD_WIDTH = 210;
         const int CARD_HEIGHT = 252;
-        public static new int stackOffsetHorizontal = 50;
+        public static new int stackOffsetHorizontal = 70;
         public static new int stackOffsetVertical = 50;
         const int numStacks = 8;
         const int numCardsInStack = 6;
@@ -45,13 +45,13 @@ namespace WordGame
         public bool quitGame = false;
 
         Texture2D noCardsTex, wordTex, addWordTex, gameOverTex, exitTex, clearTex, wrongWordTex, gameOverPlayAgainTex;
-        Texture2D jokerTex;        
+        Texture2D jokerTex, startGameTex;        
         SpriteFont font, gameOverFont;
         Color addWordColor;
-        Rectangle scoreRect, scoreLabelRect, addWordRect, clearRect, gameOverRect;
+        Rectangle scoreRect, scoreLabelRect, addWordRect, clearRect, gameOverRect, startGameRect;
+        Rectangle timerRect;
         Rectangle gameOverPlayAgainRect, exitRect;
-
-        public Slot JokerSlot;
+        
 
         MoveImage curWordScoreImage = null;
 
@@ -76,10 +76,14 @@ namespace WordGame
         
         private List<SoundEffect> soundFX;
 
-        public Deck drawPile { get; set; }
-        public Slot drawSlot { get; set; }
+        public Deck drawPile { get; set; }        
 
         public Stack currentWordStack { get; set; }
+
+        public Stack jokerDeck { get; set; }
+
+        public Slot jokerSlot { get; set; }
+
         public int TotalScore
         {
             get
@@ -190,6 +194,9 @@ namespace WordGame
 
             cardBack = Content.Load<Texture2D>("deck/cardBackground");
             cardSelectedTex = Content.Load<Texture2D>("deck/card_selected");
+            jokerTex = Content.Load<Texture2D>("deck/JOKER_2_0");
+
+
 
             soundFX = new List<SoundEffect> {
                 Content.Load<SoundEffect>("audio/card-kick"),
@@ -204,8 +211,11 @@ namespace WordGame
             addWordTex = Content.Load<Texture2D>("gameplay/addWord");
             wrongWordTex = Content.Load<Texture2D>("gameplay/wrongWord");
             clearTex = Content.Load<Texture2D>("gameplay/clear");
-            exitTex = Content.Load<Texture2D>("gameplay/exit");
+            exitTex = Content.Load<Texture2D>("gameplay/exit");            
             exitRect = new Rectangle(1980 - 100, 0, 100, 100);
+
+            startGameTex = Content.Load<Texture2D>("gameplay/StartGame");
+            startGameRect = new Rectangle(mainGame.MID_WIDTH - startGameTex.Width / 2, 650, startGameTex.Width, startGameTex.Height);
 
             gameOverTex = Content.Load<Texture2D>("gameplay/GameOver");
             gameOverRect = new Rectangle(0,0,1980,1020);
@@ -218,18 +228,15 @@ namespace WordGame
 
             
             
-            drawPile = new Deck(this, DeckType.word, cardBack, slotTex, spriteBatch, stackOffsetHorizontal, stackOffsetVertical) { type = StackType.deck };
-            drawPile.freshDeck();
-
+            drawPile = new Deck(this, DeckType.word, cardBack , mainGame.dimScreen, spriteBatch, stackOffsetHorizontal, stackOffsetVertical) { type = StackType.deck };
+                        
             
             
             InitializeTable();
             
             Tween.TweenerImpl.SetLerper<Vector2Lerper>(typeof(Vector2));
-            SetTable();
+            
         }
-
-
      
 
 
@@ -242,8 +249,9 @@ namespace WordGame
             int y = 20;
             drawPile.freshDeck();
 
-            scoreLabelRect = new Rectangle(2*x + slotTex.Width, y+80, slotTex.Width, 80);
-            scoreRect = new Rectangle(2*x + slotTex.Width, y+125, slotTex.Width, 80);
+            scoreLabelRect = new Rectangle(2*x + slotTex.Width, y+40, slotTex.Width, 80);
+            scoreRect = new Rectangle(2*x + slotTex.Width, y+85, slotTex.Width, 80);
+            timerRect = new Rectangle(2 * x + slotTex.Width, y + 180, slotTex.Width, 80);
 
             var wordSlot = new Slot(wordTex, spriteBatch)
             {
@@ -259,6 +267,14 @@ namespace WordGame
 
             addWordRect = new Rectangle((int)wordSlot.Position.X + wordTex.Width + x, y + (int) ((wordTex.Height - addWordTex.Height) * 0.5), addWordTex.Width, addWordTex.Height);
 
+            jokerSlot = new Slot(jokerTex, spriteBatch)
+            {
+                Position = new Vector2(x, y),
+                name = "Joker"
+            };
+            jokerDeck = AddStack(jokerSlot, StackType.deck, StackMethod.horizontal);
+                        
+            drawPile.slot = jokerSlot;
 
             y += slotTex.Height + y;
                        
@@ -282,7 +298,7 @@ namespace WordGame
 
         
 
-        public new void SetTable()
+        public void PlayNewGame()
         {
 
             foreach (var stack in stacks)
@@ -300,16 +316,7 @@ namespace WordGame
 
             foreach (var card in drawPile.cards)
             {
-                dragonDrop.Add(card);
-
-                //card.Selected += OnCardSelected;
-                card.Collusion += OnCollusion;
-                //card.Save += Save;
-                card.stack = drawPile;
-
-                var location = "deck/" + card.rank;
-                card.SetTexture(Content.Load<Texture2D>(location));
-                card.SelectedOverlayTexture = cardSelectedTex;
+                
             }
             
 
@@ -330,18 +337,25 @@ namespace WordGame
                     while (moveCard.wordPoints == 0)
                         moveCard = drawPile.drawCard();
 
-                    moveCard.snapPosition = new Vector2(pos.X, pos.Y + stackOffsetVertical * j);
-                    //moveCard.Position = new Vector2(pos.X, 0 - moveCard.Texture.Height);
-                    moveCard.Position = new Vector2(0, 0);
+                    dragonDrop.Add(moveCard);
+                    moveCard.Collusion += OnCollusion;                    
+
+                    var location = "deck/" + moveCard.rank;
+                    moveCard.SetTexture(Content.Load<Texture2D>(location));
+                    moveCard.SelectedOverlayTexture = cardSelectedTex;
+
+
+                    moveCard.snapPosition = new Vector2(pos.X, pos.Y + stackOffsetVertical * j);                    
+                    moveCard.Position = jokerSlot.Position;
                     moveCard.IsDraggable = false;
-                    moveCard.isFaceUp = true;
+                    moveCard.isFaceUp = false;
                     moveCard.ZIndex = j;
                     var delay = i * 2.5f + j * 2.5f;
 
-                    if (j == 0)
+                    if (j == (numCardsInStack -1))
                     {
-
-                        tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 5, delay)
+                        
+                        tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 5,5)
                             .OnBegin(() => setFaceUpAndDraggable(moveCard))
                             .OnComplete(afterAnimate)
                             .Ease(Ease.CubeOut);
@@ -354,17 +368,33 @@ namespace WordGame
                             .OnComplete(afterAnimate);
                     }
                                         
-                    stacks[i+1].addCard(moveCard);                    
+                    stacks[i+2].addCard(moveCard);                    
                 }
+
+                       
+
             }
 
+            drawPile.cards.Clear();
+
+            for (int c = 0; c < 5; c++)
+            {
+                var card = new Card("JOKER", jokerTex, spriteBatch) { isFaceUp = true };
+                jokerDeck.addCard(card);
+
+                dragonDrop.Add(card);
+                card.Collusion += OnCollusion;
+
+                var location = "deck/" + card.rank;
+                card.SetTexture(Content.Load<Texture2D>(location));
+                card.SelectedOverlayTexture = cardSelectedTex;
+            }
             
             if (!muteSound) soundFX[playSound].Play();
 
+            gameState = GameState.Playing;
+            GameTimer = new TimeSpan(0, 0, 30);
 
-
-
-            isSetup = true;
             debug();
         }
 
@@ -395,16 +425,6 @@ namespace WordGame
             if (!muteSound) soundFX[playSound].Play();
         }
 
-        //private void afterTween(Card card)
-        //{
-        //    card.flipCard();
-        //    card.snapPosition = card.Position;
-        //    card.IsDraggable = true;
-        //    card.snapTime = .7f;
-        //    //discardPile.addCard(card);
-        //    animationCount--;
-        //    if (!muteSound) soundFX[playSound].Play();
-        //}
 
         private void afterAnimateCardToAnotherCard(Card card, Card destinationCard)
         {
@@ -421,6 +441,7 @@ namespace WordGame
         {
             card.ZIndex -= ON_TOP;
             card.isSnapAnimating = false;
+            card.IsSelected = false;
             card.allowsSelection = true;
             if (stack.Count == 0)
                 card.MoveToEmptyStack(stack);
@@ -486,17 +507,44 @@ namespace WordGame
 
         }
 
-       
 
-  
+
+        TimeSpan GameTimer;
+        bool isTimerRunning;
+
+        void UpdateTimer (GameTime gameTime)
+        {
+            switch (gameState)
+            {
+                case GameState.Paused:
+                    isTimerRunning = false;
+                    break;
+                case GameState.GameOver:
+                    isTimerRunning = false;
+                    break;
+                case GameState.Playing:
+                    isTimerRunning = true;
+                    GameTimer = GameTimer.Subtract(gameTime.ElapsedGameTime);
+                    if (GameTimer.CompareTo(TimeSpan.Zero) < 0)
+                    {
+                        gameState = GameState.GameOver;
+                    }
+                    break;
+
+            }
+        }
+
+
+
         private bool dblTap = false;
 
         public new void Update(GameTime gameTime)
         {
-            if (isGameOver)
-                ProcessEndOfGame();
-                    
             
+            if (gameState == GameState.GameOver)
+                ProcessEndOfGame();
+
+            UpdateTimer(gameTime);
 
             addWordColor = (currentWordStack.Count > 1) ? Color.White : Color.DarkGray;        
 
@@ -515,85 +563,114 @@ namespace WordGame
                     case GestureType.HorizontalDrag:
                     case GestureType.VerticalDrag:
                     case GestureType.DragComplete:
-                        var sel = (dragonDrop.selectedItem == null) ? "None" : ((Card) dragonDrop.selectedItem).ToString();
-                        Debug.WriteLine("Gesture:" + gesture.GestureType + ":" + point.ToString() + ": Delta : " + gesture.Delta.ToPoint().ToString() + " : SelectedItem :" + sel);
-                        ProcessDrag(point, gesture, gameTime);
+
+                        switch (gameState)
+                        {
+                            case GameState.Playing:
+                                var sel = (dragonDrop.selectedItem == null) ? "None" : ((Card)dragonDrop.selectedItem).ToString();
+                                Debug.WriteLine("Gesture:" + gesture.GestureType + ":" + point.ToString() + ": Delta : " + gesture.Delta.ToPoint().ToString() + " : SelectedItem :" + sel);
+                                ProcessDrag(point, gesture, gameTime);
+                                break;
+                        }
                         break;
 
                     case GestureType.Tap:
-                        if (isGameOver)
+                        switch (gameState)
                         {
+                            case GameState.Starting:
+                                if (exitRect.Contains(point))
+                                    mainGame.currentAppState = MainGame.AppState.MainScreen;
+
+                                if (startGameRect.Contains(point))
+                                {
+                                    PlayNewGame();
+                                }
+                                break;
+                            case GameState.Playing:
+                                if (exitRect.Contains(point))
+                                    gameState = GameState.Paused;
+
+
+                                if (addWordRect.Contains(point) && currentWordStack.Count > 1)
+                                {
+                                    PlayAddWord();
+                                    break;
+                                }
+
+                                if (clearRect.Contains(point))
+                                {
+                                    ClearCards();
+                                }
+
+                                if (jokerSlot.Border.Contains(point))
+                                {
+                                    DealJoker();
+                                }
+
+                                // check if it was on one of the table stacks
+                                foreach (var stack in stacks)
+                                {
+                                    if (stack.Count > 0)
+                                    {
+                                        if (stack.type == StackType.stack)
+                                        {
+                                            var topCard = stack.topCard();
+
+                                            if (topCard.Border.Contains(point) && topCard.Child == null && topCard.isFaceUp && topCard.allowsSelection)
+                                            {
+
+                                                Task.Delay(100).ContinueWith((args) =>
+                                                {
+                                                    if (!dblTap)
+                                                    {
+                                                        // DO stuff on Tap                
+                                                        Debug.WriteLine("play-card: " + topCard.wordValue + " return-stack: " + topCard.stack.name);
+                                                        PlayCardToEndOfCurrentWord(topCard);
+                                                    }
+                                                });
+
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                //check if it was from the playing word stack
+
+                                var cardIndex = currentWordStack.Count;
+
+                                while (cardIndex-- > 0)
+                                {
+                                    var topCard = currentWordStack.cards[cardIndex];
+
+                                    if (topCard.Border.Contains(point) && topCard.isFaceUp)
+                                    {
+                                        Debug.WriteLine("return-card: " + topCard.wordValue + " return-stack: " + topCard.previousStack.name);
+                                        ReturnCard(topCard, topCard.previousStack, cardIndex);
+                                        break;
+                                    }
+
+                                }
+                                break;
+                            case GameState.Paused:
+                                if (exitRect.Contains(point))
+                                    gameState = GameState.GameOver;
+
+                                if (startGameRect.Contains(point))
+                                {
+                                    gameState = GameState.Playing;
+                                }
+                                break;
+                            case GameState.GameOver:
                             if (exitRect.Contains(point))
                                 mainGame.currentAppState = MainGame.AppState.MainScreen;
 
                             if (gameOverPlayAgainRect.Contains(point))
-                                SetTable();
+                                PlayNewGame();
 
-                            Debug.WriteLine("Tap: " + point.X + "," + point.Y);
-                        }
-                        else
-                        {
-                            if (exitRect.Contains(point)) { 
-                                quitGame = true;
                                 break;
-                            }
-                            // check if addWord is clicks                        
-                            if (addWordRect.Contains(point) && currentWordStack.Count > 1)
-                            {
-                                PlayAddWord();
-                                break;
-                            }
-
-                            if (clearRect.Contains(point))
-                            {
-                                ClearCards();
-                            }
-
-                            // check if it was on one of the table stacks
-                            foreach (var stack in stacks)
-                            {
-                                if (stack.Count > 0)
-                                {
-                                    if (stack.type == StackType.stack)
-                                    {
-                                        var topCard = stack.topCard();
-
-                                        if (topCard.Border.Contains(point) && topCard.Child == null && topCard.isFaceUp && topCard.allowsSelection)
-                                        {
-
-                                            Task.Delay(100).ContinueWith((args) =>
-                                            {
-                                                if (!dblTap)
-                                                {
-                                                    // DO stuff on Tap                
-                                                    Debug.WriteLine("play-card: " + topCard.wordValue + " return-stack: " + topCard.stack.name);
-                                                    PlayCardToEndOfCurrentWord(topCard);
-                                                }
-                                            });
-                                            
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            //check if it was from the playing word stack
-
-                            var cardIndex = currentWordStack.Count;
-
-                            while (cardIndex-- > 0)
-                            {
-                                var topCard = currentWordStack.cards[cardIndex];
-
-                                if (topCard.Border.Contains(point) && topCard.isFaceUp)
-                                {
-                                    Debug.WriteLine("return-card: " + topCard.wordValue + " return-stack: " + topCard.previousStack.name);
-                                    ReturnCard(topCard, topCard.previousStack, cardIndex);
-                                    break;
-                                }
-
-                            }
                         }
+                                                                                                                              
                         break;
                     case GestureType.DoubleTap:
                         if (!isGameOver)
@@ -653,27 +730,9 @@ namespace WordGame
             return ret;
         }
 
-        private void DealMoreCards()
+        private void DealJoker()
         {
-            
-            int delayForClear = (currentWordStack.Count > 0) ? 5 : 0;
-            ClearCards();
-
-            for (int i = 0; i < numStacks; i++)
-            {
-                var moveCard = drawPile.drawCard();
-                var stack = stacks[i + 2];
-
-
-                moveCard.snapPosition = new Vector2(stack.slot.Position.X, stack.slot.Position.Y + (stackOffsetVertical * (stack.Count+1)));
-                // stack.addCard(moveCard, true);
-                moveCard.Position = drawSlot.Position;
-                tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 7, delayForClear)
-                    .OnBegin(() => addAndSetFaceUp(moveCard, stack))
-                    .OnComplete(afterAnimate)
-                    .Ease(Ease.CubeOut);
-                    
-            }        
+                       
         }
 
         private void PlayAddWord()
@@ -841,93 +900,117 @@ namespace WordGame
             base.Draw(gameTime);
             spriteBatch.Draw(addWordTex, addWordRect, addWordColor);
 
-            Util.DrawString(spriteBatch, font, "Score", scoreLabelRect, Util.Alignment.Center, Color.White);
-            Util.DrawString(spriteBatch, font, TotalScore.ToString(), scoreRect, Util.Alignment.Center, Color.White);
-
-            if (CurrentWord.Length > 0)
-            {               
-                spriteBatch.Draw(clearTex, clearRect, Color.White);
-            }
-
-
-            for (var i = 0; i < InvalidWords; i++)
-                spriteBatch.Draw(wrongWordTex, new Rectangle(addWordRect.Right + ((i + 1) * 10) + i * wrongWordTex.Width, addWordRect.Center.Y - (int) (wrongWordTex.Height /2), wrongWordTex.Width, wrongWordTex.Height), Color.White);
-
-            if (!haveMoreCards)
-                spriteBatch.Draw(noCardsTex, drawSlot.Border, Color.White);
-
-            if (curWordScoreImage != null)
+            switch (gameState)
             {
-                string word = mainGame.validWords.IsWordValid(CurrentWord) ? "+ " : "- ";
-                word += CurrentWordScore.ToString() + " " + CurrentWord;
-                
-                spriteBatch.DrawString(font, word, curWordScoreImage.Position, mainGame.validWords.IsWordValid(CurrentWord) ? Color.LightGreen : Color.Red);
-                
-                if (CurrentWordBonus > 0)
-                {
-                    var pos = curWordScoreImage.Position;
-                    pos.Y += 40;
-                    spriteBatch.DrawString(font, "+ " + CurrentWordBonus.ToString() + " length bonus", pos, Color.LightGreen);
-                }
+                case GameState.Playing:
+                    Util.DrawString(spriteBatch, font, "Score", scoreLabelRect, Util.Alignment.Center, Color.White);
+                    Util.DrawString(spriteBatch, font, TotalScore.ToString(), scoreRect, Util.Alignment.Center, Color.White);
+                    Util.DrawString(spriteBatch, font, GameTimer.ToString(@"mm\:ss"), timerRect, Util.Alignment.Center, Color.White);
+
+                    if (CurrentWord.Length > 0)
+                    {
+                        spriteBatch.Draw(clearTex, clearRect, Color.White);
+                    }
+
+
+                    if (curWordScoreImage != null)
+                    {
+                        string word = mainGame.validWords.IsWordValid(CurrentWord) ? "+ " : "- ";
+                        word += CurrentWordScore.ToString() + " " + CurrentWord;
+
+                        spriteBatch.DrawString(font, word, curWordScoreImage.Position, mainGame.validWords.IsWordValid(CurrentWord) ? Color.LightGreen : Color.Red);
+
+                        if (CurrentWordBonus > 0)
+                        {
+                            var pos = curWordScoreImage.Position;
+                            pos.Y += 40;
+                            spriteBatch.DrawString(font, "+ " + CurrentWordBonus.ToString() + " length bonus", pos, Color.LightGreen);
+                        }
+                    }
+                    break;
+
+                case GameState.Starting:
+                    spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
+
+                    string readyToPlay1 = "Ready to play timed round?";
+                    string readyToPlay2 = "2:00 to get the highest score you can.";
+                    string readyToPlay3 = "Use your joker's wisely...or not at all";
+
+                    Rectangle readyRect1 = new Rectangle(mainGame.MID_WIDTH - 200, 300, 400, 50);
+                    Rectangle readyRect2 = new Rectangle(mainGame.MID_WIDTH - 200, 400, 400, 50);
+                    Rectangle readyRect3 = new Rectangle(mainGame.MID_WIDTH - 200, 500, 400, 50);
+                    Util.DrawString(spriteBatch, gameOverFont, readyToPlay1, readyRect1, Util.Alignment.Center, Color.White);
+                    Util.DrawString(spriteBatch, gameOverFont, readyToPlay2, readyRect2, Util.Alignment.Center, Color.White);
+                    Util.DrawString(spriteBatch, gameOverFont, readyToPlay3, readyRect3, Util.Alignment.Center, Color.White);
+
+                    spriteBatch.Draw(startGameTex, startGameRect, Color.White);
+
+                    break;
+
+                case GameState.Paused:
+                    spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
+                    string paused = "Game Paused";
+                    Rectangle pausedRect = new Rectangle(mainGame.MID_WIDTH - 200, 400, 400, 50);
+
+                    Util.DrawString(spriteBatch, gameOverFont, paused, pausedRect, Util.Alignment.Center, Color.White);
+                    spriteBatch.Draw(startGameTex, startGameRect, Color.White);
+                    break;
+
+                case GameState.GameOver:
+                    spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
+                    spriteBatch.Draw(gameOverTex, gameOverRect, Color.White);
+
+                    var gameOverTextRect = new Rectangle(0, 175, mainGame.MID_WIDTH - 20, 150);
+                    var gameOverScoresTextRect = new Rectangle(mainGame.MID_WIDTH + 20, 175, 600, 150);
+
+                    string gameOverScoresText = completedWords.Count.ToString();
+
+
+                    string gameOverBestWord = "";
+                    if (completedWords.Count > 0)
+                    {
+                        var bw = BestWord;
+                        gameOverBestWord = bw.word + " " + "(" + bw.score + ")";
+                    }
+
+
+                    var gameOverBonusText = "TBD :-)";
+
+                    Util.DrawString(spriteBatch, gameOverFont, "Words Found:", gameOverTextRect, Util.Alignment.Right, Color.White);
+                    Util.DrawString(spriteBatch, gameOverFont, completedWords.Count.ToString(), gameOverScoresTextRect, Util.Alignment.Left, Color.White);
+                    gameOverTextRect.Y += 100;
+                    gameOverScoresTextRect.Y += 100;
+                    Util.DrawString(spriteBatch, gameOverFont, "Best Word:", gameOverTextRect, Util.Alignment.Right, Color.White);
+                    Util.DrawString(spriteBatch, gameOverFont, gameOverBestWord, gameOverScoresTextRect, Util.Alignment.Left, Color.White);
+                    gameOverTextRect.Y += 100;
+                    gameOverScoresTextRect.Y += 100;
+                    Util.DrawString(spriteBatch, gameOverFont, "Bonuses:", gameOverTextRect, Util.Alignment.Right, Color.White);
+                    Util.DrawString(spriteBatch, gameOverFont, gameOverBonusText, gameOverScoresTextRect, Util.Alignment.Left, Color.White);
+                    gameOverTextRect.Y += 100;
+                    gameOverScoresTextRect.Y += 100;
+                    Util.DrawString(spriteBatch, gameOverFont, "Penalties:", gameOverTextRect, Util.Alignment.Right, Color.White);
+
+                    if (InvalidWords == 0)
+                    {
+                        Util.DrawString(spriteBatch, gameOverFont, "None", gameOverScoresTextRect, Util.Alignment.Left, Color.White);
+                    }
+                    else
+                    {
+                        for (var i = 0; i < InvalidWords; i++)
+                            spriteBatch.Draw(wrongWordTex, new Rectangle(gameOverScoresTextRect.Left + (i * wrongWordTex.Width), gameOverScoresTextRect.Top, 60, 60), Color.White);
+                    }
+
+                    gameOverTextRect.Y += 100;
+                    gameOverScoresTextRect.Y += 100;
+                    Util.DrawString(spriteBatch, gameOverFont, "Total Score:", gameOverTextRect, Util.Alignment.Right, Color.White);
+                    Util.DrawString(spriteBatch, gameOverFont, TotalScore.ToString(), gameOverScoresTextRect, Util.Alignment.Left, Color.LightGreen);
+
+                    spriteBatch.Draw(gameOverPlayAgainTex, gameOverPlayAgainRect, Color.White);
+                    break;
             }
-            
-            if (isGameOver)
-            {
-                spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
-                spriteBatch.Draw(gameOverTex, gameOverRect, Color.White);
-
-                var gameOverTextRect = new Rectangle(0,  175, mainGame.MID_WIDTH - 20, 150);
-                var gameOverScoresTextRect = new Rectangle(mainGame.MID_WIDTH + 20, 175, 600, 150);
-
-                string gameOverScoresText = completedWords.Count.ToString();
-
-
-                string gameOverBestWord = "";
-                if (completedWords.Count > 0)
-                {
-                    var bw = BestWord;
-                    gameOverBestWord = bw.word + " " + "(" + bw.score + ")";                    
-                }
-                
-
-                var gameOverBonusText = "TBD :-)";
-                               
-                Util.DrawString(spriteBatch, gameOverFont, "Words Found:", gameOverTextRect, Util.Alignment.Right, Color.White);
-                Util.DrawString(spriteBatch, gameOverFont, completedWords.Count.ToString(), gameOverScoresTextRect, Util.Alignment.Left, Color.White);
-                gameOverTextRect.Y += 100;
-                gameOverScoresTextRect.Y += 100;
-                Util.DrawString(spriteBatch, gameOverFont, "Best Word:", gameOverTextRect, Util.Alignment.Right, Color.White);
-                Util.DrawString(spriteBatch, gameOverFont, gameOverBestWord, gameOverScoresTextRect, Util.Alignment.Left, Color.White);
-                gameOverTextRect.Y += 100;
-                gameOverScoresTextRect.Y += 100;
-                Util.DrawString(spriteBatch, gameOverFont, "Bonuses:", gameOverTextRect, Util.Alignment.Right, Color.White);
-                Util.DrawString(spriteBatch, gameOverFont, gameOverBonusText, gameOverScoresTextRect, Util.Alignment.Left, Color.White);
-                gameOverTextRect.Y += 100;
-                gameOverScoresTextRect.Y += 100;
-                Util.DrawString(spriteBatch, gameOverFont, "Penalties:", gameOverTextRect, Util.Alignment.Right, Color.White);
-
-                if (InvalidWords == 0)
-                {
-                    Util.DrawString(spriteBatch, gameOverFont, "None", gameOverScoresTextRect, Util.Alignment.Left, Color.White);                    
-                }
-                else
-                {
-                    for (var i = 0; i < InvalidWords; i++)
-                        spriteBatch.Draw(wrongWordTex, new Rectangle(gameOverScoresTextRect.Left + (i * wrongWordTex.Width), gameOverScoresTextRect.Top, 60, 60), Color.White);
-                }
-                
-                gameOverTextRect.Y += 100;
-                gameOverScoresTextRect.Y += 100;
-                Util.DrawString(spriteBatch, gameOverFont, "Total Score:", gameOverTextRect, Util.Alignment.Right, Color.White);
-                Util.DrawString(spriteBatch, gameOverFont, TotalScore.ToString(), gameOverScoresTextRect, Util.Alignment.Left, Color.LightGreen);
-                                
-                spriteBatch.Draw(gameOverPlayAgainTex, gameOverPlayAgainRect, Color.White);
-                
-            }
-
+        
             spriteBatch.Draw(exitTex, exitRect, Color.White);
-
-            //if (table.gameState == GameState.won) confetti.Draw(spriteBatch);
+            
 
         }
 

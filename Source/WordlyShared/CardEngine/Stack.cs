@@ -390,6 +390,8 @@ namespace MonoGame.Ruge.CardEngine {
                         card.Child.rank + " of " + card.Child.suit + " (" + strFaceUp + ")");
                     }
 
+                    Debug.Write(" pos: (" + card.Position.X + ", " + card.Position.Y + ")");
+                    Debug.Write(" snap pos: (" + card.snapPosition.X + ", " + card.snapPosition.Y + ")");
                     Debug.WriteLine("");
                 }
 

@@ -421,7 +421,7 @@ namespace WordGame
 
 
 
-
+            debug();
             isSetup = true;
 
         }
