@@ -305,9 +305,8 @@ namespace WordGame
                 newStack.crunchItems = 24;                
             }
 
-            TimerDisplay = new Pie2D(mainGame, slotTex.Width /2, MathHelper.ToRadians(90), 8, false);
-            //TimerDisplay.Position = new Vector2(2 * x + slotTex.Width + slotTex.Width/2, y + slotTex.Height/2);
-            TimerDisplay.Position = new Vector2(900,1000);
+            TimerDisplay = new Pie2D(mainGame, slotTex.Width /2, MathHelper.ToRadians(90), 8, false, new Color(Color.LightGray, 0.5f));
+            TimerDisplay.Position = new Vector2(2 * x + slotTex.Width + slotTex.Width/2, slotTex.Height/2 + 20);            
             TimerDisplay.LoadContent();
         }
 
@@ -550,7 +549,7 @@ namespace WordGame
                     isTimerRunning = true;
                     GameTimer = GameTimer.Subtract(gameTime.ElapsedGameTime);
                     float percentDown = 1f - ((float) GameTimer.TotalMilliseconds / (float) TotalGameTime.TotalMilliseconds);
-                    //TimerDisplay.Angle = MathHelper.ToRadians(percentDown * 360);
+                    TimerDisplay.Angle = MathHelper.ToRadians(percentDown * 360);
                     if (GameTimer.CompareTo(TimeSpan.Zero) < 0)
                     {
                         gameState = GameState.GameOver;

@@ -10,6 +10,9 @@ namespace WordGame
     {
 
         private float rotation = 0.0f;
+
+        
+
         public float Rotation
         {
             get { return rotation; }
@@ -71,7 +74,7 @@ namespace WordGame
             }
         }
 
-
+        public Color Color { get; set; }
 
 
         Game game;
@@ -87,13 +90,14 @@ namespace WordGame
         /// <param name="angle">Angle of the Pie arc</param>
         /// <param name="tesselation">Nr of triangles on the arc</param>
         /// <param name="centered">Centers the Pie around the facing direction.</param>
-        public Pie2D(Game game, float radius, float angle, int tesselation, bool centered)
+        public Pie2D(Game game, float radius, float angle, int tesselation, bool centered, Color color)
         {
             this.game = game;
             this.radius = radius;
             this.angle = angle;
             this.nrTriangles = tesselation;
             this.isCentered = centered;
+            this.Color = color; 
         }
 
 
@@ -116,10 +120,10 @@ namespace WordGame
             for (int i = 0; i < nrTriangles * 2; i++)
             {
                 float ang = Lerp(0, max, 0, angle, i);
-                verts.Add(new VertexPositionColor(new Vector3((float)Math.Cos(ang), (float)Math.Sin(ang), 0), Color.Red));
-                verts.Add(new VertexPositionColor(Vector3.Zero, Color.Red));
+                verts.Add(new VertexPositionColor(new Vector3((float)Math.Cos(ang), (float)Math.Sin(ang), 0), this.Color));
+                verts.Add(new VertexPositionColor(Vector3.Zero, this.Color));
             }
-            verts.Add(new VertexPositionColor(new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0), Color.Red));
+            verts.Add(new VertexPositionColor(new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0), this.Color));
             vertices = verts.ToArray();
         }
         public static float Lerp(float x0, float x1, float y0, float y1, float x2)
