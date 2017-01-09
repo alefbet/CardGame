@@ -50,7 +50,7 @@ namespace WordGame
             softwareRect = new MoveImage(1920/2-100, 1080);
 
             logo = Content.Load<Texture2D>("mainscreen/wordily");
-            logoRect = new Rectangle(mainGame.MID_WIDTH -logo.Width/ 2, 20, logo.Width, logo.Height);
+            logoRect = new Rectangle(mainGame.MID_WIDTH -logo.Width/ 2, 100, logo.Width, logo.Height);
 
             Tween.TweenerImpl.SetLerper<Vector2Lerper>(typeof(Vector2));
             tween.Tween(alefRect, new { Position = new Vector2(1920 / 2 - 100, 800) }, 5, 5);

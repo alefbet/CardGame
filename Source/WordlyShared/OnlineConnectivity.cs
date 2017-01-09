@@ -1,10 +1,11 @@
 ﻿#if WINDOWS_UAP
 using com.shephertz.app42.paas.sdk.windows;
 using com.shephertz.app42.paas.sdk.windows.game;
+using com.shephertz.app42.paas.sdk.windows.social;
 #else
 using com.shephertz.app42.paas.sdk.csharp;
 using com.shephertz.app42.paas.sdk.csharp.game;
-
+using com.shephertz.app42.paas.sdk.csharp.social;
 #endif
 
 using System;
@@ -15,6 +16,7 @@ using com.shephertz.app42.gaming.multiplayer.client.events;
 using com.shephertz.app42.gaming.multiplayer.client.command;
 using System.Diagnostics;
 using com.shephertz.app42.gaming.multiplayer.client;
+
 
 namespace WordGame
 {
@@ -28,22 +30,17 @@ namespace WordGame
     }
 
 #if WINDOWS_UAP
-    public class Callback : App42Callback
+    public class OnSaveScoreCallback : App42Callback
     {
         public string foo {get;set;}
         
          void App42Callback.OnException(App42Exception exception)
         {
-            Debug.WriteLine("Exception : " + exception);
+            
         }
          void App42Callback.OnSuccess(Object response)
         {
-            IList<Game> game = (List<Game>)response;
-            for (int i = 0; i < game.Count; i++)
-            {
-                Debug.WriteLine("gameName is " + game[i].GetName());
-                Debug.WriteLine("gameDescription is " + game[i].description);
-            }
+            
         }
     }
 #endif
@@ -54,6 +51,7 @@ namespace WordGame
         string APP42_APPSECRET = "67a2a211044b024871e84a2ce799b37c8c1596e5b939c53313863e1551508441";
         ServiceAPI serviceAPI;
         ScoreBoardService scoreSvc;
+        SocialService socialSvc;
 
         public string CurrentUser
             {
@@ -63,22 +61,30 @@ namespace WordGame
 #if __ANDROID__
                 user = Android.OS.Build.Serial;
 #elif WINDOW_UAP
-                var token = HardwareIdentification.GetPackageSpecificToken(null);
-	            var hardwareId = token.Id;
-	            var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(hardwareId);
+          
+                if (Windows.Foundation.Metadata.ApiInformation.IsTypePresent("Windows.System.Profile.HardwareIdentification"))
+                {
+                    var token = HardwareIdentification.GetPackageSpecificToken(null);
+                    var hardwareId = token.Id;
+                    var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(hardwareId);
 
-	            byte[] bytes = new byte[hardwareId.Length];
-	            dataReader.ReadBytes(bytes);
+                    byte[] bytes = new byte[hardwareId.Length];
+                    dataReader.ReadBytes(bytes);
 
-            	user = Convert.ToBase64String(bytes);
+                    user =  BitConverter.ToString(bytes).Replace("-", "");
+                }
+                else
+                    user = Plugin.Settings.CrossSettings.Current.GetValueOrDefault("UserName", Guid.NewGuid().ToString());
+            
+                }
 }
 #else
-                user = "Test User";
+                user = Plugin.Settings.CrossSettings.Current.GetValueOrDefault("UserName", Guid.NewGuid().ToString());
 #endif
                 return user;
             }
             }
-
+    
 
         public EventHandler<String> UserJoined;
         public EventHandler<String> UserLeft;
@@ -129,6 +135,7 @@ namespace WordGame
                 serviceAPI = new ServiceAPI(APP42_APPKEY, APP42_APPSECRET);
                 scoreSvc = serviceAPI.BuildScoreBoardService();
 
+
                 WarpClient.initialize(APP42_APPKEY, APP42_APPSECRET);
                 WarpClient.GetInstance().AddConnectionRequestListener(this);
                 WarpClient.GetInstance().AddRoomRequestListener(this);
@@ -142,15 +149,13 @@ namespace WordGame
 
             }
         }
-                
+                       
 
         public bool SubmitScore(string Level, int Score)
         {
 
-
-
 #if WINDOWS_UAP
-            var c = new Callback();
+            var c = new OnSaveScoreCallback();
             scoreSvc.SaveUserScore(Level, CurrentUser, Score, c);
 #else
             Game game = scoreSvc.SaveUserScore(Level, CurrentUser, Score);

@@ -174,11 +174,13 @@ namespace WordGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            spriteBatch.Begin();
+            spriteBatch.Draw(background, GraphicsDevice.Viewport.Bounds, Color.White);
+            spriteBatch.End();
             spriteBatch.Begin(transformMatrix: viewPort.GetScaleMatrix(), samplerState: SamplerState.LinearWrap);
-            spriteBatch.Draw(background, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), Color.White);            
-            
-            
+            //spriteBatch.Draw(background, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), Color.White);
+
+
             // draw background
 
             switch (this.currentAppState)

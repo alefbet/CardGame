@@ -43,7 +43,7 @@ namespace WordGame
         {
 
             logo = Content.Load<Texture2D>("mainscreen/wordily");
-            logoRect = new Rectangle(mainGame.MID_WIDTH - logo.Width/2, 20, logo.Width, logo.Height);
+            logoRect = new Rectangle(mainGame.MID_WIDTH - logo.Width/2, 100, logo.Width, logo.Height);
 
             solitaire = Content.Load<Texture2D>("mainscreen/playClassic");
             solitaireRect = new Rectangle(mainGame.MID_WIDTH-600, logoRect.Bottom + 150, solitaire.Width, solitaire.Height);

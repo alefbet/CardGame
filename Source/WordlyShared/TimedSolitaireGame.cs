@@ -739,7 +739,7 @@ namespace WordGame
         {
             if (!postedGameScores)
             {
-                mainGame.online.SubmitScore("Timed Level 1", TotalScore);
+                mainGame.online.SubmitScore("Timed Hard", TotalScore);                
                 postedGameScores = true;
             }
         }
