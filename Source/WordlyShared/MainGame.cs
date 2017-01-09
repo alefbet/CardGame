@@ -42,8 +42,8 @@ namespace WordGame
         public const int WINDOW_WIDTH = 1980;
         public const int WINDOW_HEIGHT = 1020;
 
-        public int MID_WIDTH = WINDOW_WIDTH / 2;
-        public int MID_HEIGHT = WINDOW_HEIGHT / 2;
+        public const int MID_WIDTH = WINDOW_WIDTH / 2;
+        public const int MID_HEIGHT = WINDOW_HEIGHT / 2;
 
         public BoxingViewportAdapter viewPort { get; set; }
 

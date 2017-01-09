@@ -43,19 +43,19 @@ namespace WordGame
             
 
             bet = Content.Load<Texture2D>("splashscreen/bet");
-            betRect = new MoveImage(1920,800);
+            betRect = new MoveImage(MainGame.WINDOW_WIDTH, 800);
             
 
             software = Content.Load<Texture2D>("splashscreen/software");
-            softwareRect = new MoveImage(1920/2-100, 1080);
+            softwareRect = new MoveImage(MainGame.MID_WIDTH-100, 1080);
 
             logo = Content.Load<Texture2D>("mainscreen/wordily");
-            logoRect = new Rectangle(mainGame.MID_WIDTH -logo.Width/ 2, 100, logo.Width, logo.Height);
+            logoRect = new Rectangle(MainGame.MID_WIDTH -logo.Width/ 2, 100, logo.Width, logo.Height);
 
             Tween.TweenerImpl.SetLerper<Vector2Lerper>(typeof(Vector2));
-            tween.Tween(alefRect, new { Position = new Vector2(1920 / 2 - 100, 800) }, 5, 5);
-            tween.Tween(betRect, new { Position = new Vector2(1920 / 2 - 100, 800) }, 5, 10);
-            tween.Tween(softwareRect, new { Position = new Vector2(1920 / 2 - 100, 800) }, 3, 15).OnComplete(splashScreenEnd); ;            
+            tween.Tween(alefRect, new { Position = new Vector2(MainGame.MID_WIDTH - 100, 800) }, 5, 5);
+            tween.Tween(betRect, new { Position = new Vector2(MainGame.MID_WIDTH - 100, 800) }, 5, 10);
+            tween.Tween(softwareRect, new { Position = new Vector2(MainGame.MID_WIDTH - 100, 800) }, 3, 15).OnComplete(splashScreenEnd); ;            
         }
 
         private async void splashScreenEnd()

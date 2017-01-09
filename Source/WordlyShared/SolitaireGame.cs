@@ -940,8 +940,8 @@ namespace WordGame
                 spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
                 spriteBatch.Draw(gameOverTex, gameOverRect, Color.White);
 
-                var gameOverTextRect = new Rectangle(0,  175, mainGame.MID_WIDTH - 20, 150);
-                var gameOverScoresTextRect = new Rectangle(mainGame.MID_WIDTH + 20, 175, 600, 150);
+                var gameOverTextRect = new Rectangle(0,  175, MainGame.MID_WIDTH - 20, 150);
+                var gameOverScoresTextRect = new Rectangle(MainGame.MID_WIDTH + 20, 175, 600, 150);
 
                 string gameOverScoresText = completedWords.Count.ToString();
 

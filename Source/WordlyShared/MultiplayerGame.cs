@@ -181,13 +181,13 @@ namespace WordGame
             gameOverTex = Content.Load<Texture2D>("gameplay/GameOver");
             gameOverRect = new Rectangle(0,0,1980,1020);
             gameOverPlayAgainTex = Content.Load<Texture2D>("gameplay/playAgain");
-            gameOverPlayAgainRect = new Rectangle(mainGame.MID_WIDTH - gameOverPlayAgainTex.Width / 2, 700, gameOverPlayAgainTex.Width, gameOverPlayAgainTex.Height);
+            gameOverPlayAgainRect = new Rectangle(MainGame.MID_WIDTH - gameOverPlayAgainTex.Width / 2, 700, gameOverPlayAgainTex.Width, gameOverPlayAgainTex.Height);
 
             font = Content.Load<SpriteFont>("gameplay/Cutive");
             gameOverFont = Content.Load<SpriteFont>("gameplay/gameOverFont");
 
             startGameTex = Content.Load<Texture2D>("gameplay/StartGame");
-            startGameRect = new Rectangle(mainGame.MID_WIDTH - startGameTex.Width / 2, 650, startGameTex.Width, startGameTex.Height);
+            startGameRect = new Rectangle(MainGame.MID_WIDTH - startGameTex.Width / 2, 650, startGameTex.Width, startGameTex.Height);
             
             
             drawPile = new Deck(this, DeckType.word, cardBack, slotTex, spriteBatch, stackOffsetHorizontal, stackOffsetVertical) { type = StackType.deck };

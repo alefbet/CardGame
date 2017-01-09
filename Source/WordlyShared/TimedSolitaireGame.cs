@@ -49,11 +49,11 @@ namespace WordGame
         public bool quitGame = false;
 
         Texture2D noCardsTex, wordTex, addWordTex, gameOverTex, exitTex, clearTex, wrongWordTex, gameOverPlayAgainTex;
-        Texture2D jokerTex, startGameTex;        
+        Texture2D jokerTex, startGameTex, timerTex;        
         SpriteFont font, gameOverFont;
         Color addWordColor;
         Rectangle scoreRect, scoreLabelRect, addWordRect, clearRect, gameOverRect, startGameRect;
-        Rectangle timerRect;
+        Rectangle timerRect, timerImageRect;
         Rectangle gameOverPlayAgainRect, exitRect;
 
         Pie2D TimerDisplay;
@@ -211,6 +211,7 @@ namespace WordGame
                 Content.Load<SoundEffect>("audio/card-bounce")
             };
 
+            timerTex = Content.Load<Texture2D>("gameplay/timer");
             wordTex = Content.Load<Texture2D>("gameplay/playingArea");
             addWordTex = Content.Load<Texture2D>("gameplay/addWord");
             wrongWordTex = Content.Load<Texture2D>("gameplay/wrongWord");
@@ -219,7 +220,7 @@ namespace WordGame
             exitRect = new Rectangle(1980 - 100, 0, 100, 100);
 
             startGameTex = Content.Load<Texture2D>("gameplay/StartGame");
-            startGameRect = new Rectangle(mainGame.MID_WIDTH - startGameTex.Width / 2, 650, startGameTex.Width, startGameTex.Height);
+            startGameRect = new Rectangle(MainGame.MID_WIDTH - startGameTex.Width / 2, 650, startGameTex.Width, startGameTex.Height);
 
             gameOverTex = Content.Load<Texture2D>("gameplay/GameOver");
             gameOverRect = new Rectangle(0,0,1980,1020);
@@ -232,6 +233,8 @@ namespace WordGame
 
             
             
+
+
             drawPile = new Deck(this, DeckType.word, cardBack , mainGame.dimScreen, spriteBatch, stackOffsetHorizontal, stackOffsetVertical) { type = StackType.deck };
                         
             
@@ -253,9 +256,10 @@ namespace WordGame
             int y = 20;
             drawPile.freshDeck();
 
-            scoreLabelRect = new Rectangle(2*x + slotTex.Width, y+40, slotTex.Width, 80);
-            scoreRect = new Rectangle(2*x + slotTex.Width, y+85, slotTex.Width, 80);
-            timerRect = new Rectangle(2 * x + slotTex.Width, y + 180, slotTex.Width, 80);
+            scoreLabelRect = new Rectangle(2 * x + slotTex.Width, y + 40, slotTex.Width, 80);
+            scoreRect = new Rectangle(2 * x + slotTex.Width, y + 85, slotTex.Width, 80);
+            timerImageRect = new Rectangle(4 * x + slotTex.Width, y + 180, timerTex.Width, timerTex.Height);
+            timerRect = new Rectangle(timerImageRect.Right, timerImageRect.Bottom - 30, slotTex.Width - timerImageRect.Width - 2*x, 40);
 
             var wordSlot = new Slot(wordTex, spriteBatch)
             {
@@ -305,8 +309,9 @@ namespace WordGame
                 newStack.crunchItems = 24;                
             }
 
-            TimerDisplay = new Pie2D(mainGame, slotTex.Width /2, MathHelper.ToRadians(90), 8, false, new Color(Color.LightGray, 0.5f));
-            TimerDisplay.Position = new Vector2(2 * x + slotTex.Width + slotTex.Width/2, slotTex.Height/2 + 20);            
+            TimerDisplay = new Pie2D(mainGame, timerTex.Width/2 - 4, 0, 8, false, new Color(Color.DarkGray, 0.5f));
+            TimerDisplay.Position = new Vector2(timerImageRect.Center.X, timerImageRect.Bottom - timerImageRect.Width / 2);
+            TimerDisplay.Rotation = MathHelper.ToRadians(-90);
             TimerDisplay.LoadContent();
         }
 
@@ -489,6 +494,7 @@ namespace WordGame
             card.ZIndex -= ON_TOP;
             card.isSnapAnimating = false;
             stack.addCard(card);
+           
             currentWordStack.UpdatePositions();   
             if (!muteSound) soundFX[playSound].Play(.3f, 0, 0);
             animationCount = 0;
@@ -898,7 +904,7 @@ namespace WordGame
                 topCard.ZIndex += ON_TOP;
 
                 topCard.previousStack = topCard.stack;
-                topCard.allowsSelection = false;
+                topCard.allowsSelection = true;
                 tween.Tween(topCard, new { Position = pos }, 3)
                     .Ease(Ease.CubeInOut)
                     .OnComplete(() => afterAnimateCardToStack(topCard, currentWordStack));
@@ -915,7 +921,7 @@ namespace WordGame
                 topCard.ZIndex += ON_TOP;
 
                 topCard.previousStack = topCard.stack;
-                topCard.allowsSelection = false;
+                topCard.allowsSelection = true;
                 tween.Tween(topCard, new { Position = pos }, 3)
                     .Ease(Ease.CubeInOut)
                     .OnComplete(() => afterAnimatePlayCardToEmptyStack(topCard, emptyStack));
@@ -937,7 +943,7 @@ namespace WordGame
                     Util.DrawString(spriteBatch, font, "Score", scoreLabelRect, Util.Alignment.Center, Color.White);
                     Util.DrawString(spriteBatch, font, TotalScore.ToString(), scoreRect, Util.Alignment.Center, Color.White);
                     Util.DrawString(spriteBatch, font, GameTimer.ToString(@"mm\:ss"), timerRect, Util.Alignment.Center, Color.White);
-
+                    spriteBatch.Draw(timerTex, timerImageRect, Color.White);
                     
 
 
@@ -970,9 +976,9 @@ namespace WordGame
                     string readyToPlay2 = "2:00 to get the highest score you can.";
                     string readyToPlay3 = "Use your joker's wisely...or not at all";
 
-                    Rectangle readyRect1 = new Rectangle(mainGame.MID_WIDTH - 200, 300, 400, 50);
-                    Rectangle readyRect2 = new Rectangle(mainGame.MID_WIDTH - 200, 400, 400, 50);
-                    Rectangle readyRect3 = new Rectangle(mainGame.MID_WIDTH - 200, 500, 400, 50);
+                    Rectangle readyRect1 = new Rectangle(MainGame.MID_WIDTH - 200, 300, 400, 50);
+                    Rectangle readyRect2 = new Rectangle(MainGame.MID_WIDTH - 200, 400, 400, 50);
+                    Rectangle readyRect3 = new Rectangle(MainGame.MID_WIDTH - 200, 500, 400, 50);
                     Util.DrawString(spriteBatch, gameOverFont, readyToPlay1, readyRect1, Util.Alignment.Center, Color.White);
                     Util.DrawString(spriteBatch, gameOverFont, readyToPlay2, readyRect2, Util.Alignment.Center, Color.White);
                     Util.DrawString(spriteBatch, gameOverFont, readyToPlay3, readyRect3, Util.Alignment.Center, Color.White);
@@ -984,7 +990,7 @@ namespace WordGame
                 case GameState.Paused:
                     spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
                     string paused = "Game Paused";
-                    Rectangle pausedRect = new Rectangle(mainGame.MID_WIDTH - 200, 400, 400, 50);
+                    Rectangle pausedRect = new Rectangle(MainGame.MID_WIDTH - 200, 400, 400, 50);
 
                     Util.DrawString(spriteBatch, gameOverFont, paused, pausedRect, Util.Alignment.Center, Color.White);
                     spriteBatch.Draw(startGameTex, startGameRect, Color.White);
@@ -994,8 +1000,8 @@ namespace WordGame
                     spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
                     spriteBatch.Draw(gameOverTex, gameOverRect, Color.White);
 
-                    var gameOverTextRect = new Rectangle(0, 175, mainGame.MID_WIDTH - 20, 150);
-                    var gameOverScoresTextRect = new Rectangle(mainGame.MID_WIDTH + 20, 175, 600, 150);
+                    var gameOverTextRect = new Rectangle(0, 175, MainGame.MID_WIDTH - 20, 150);
+                    var gameOverScoresTextRect = new Rectangle(MainGame.MID_WIDTH + 20, 175, 600, 150);
 
                     string gameOverScoresText = completedWords.Count.ToString();
 
