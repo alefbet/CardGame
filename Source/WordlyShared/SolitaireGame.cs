@@ -74,10 +74,10 @@ namespace WordGame
         //    LoadContent();
         //}
 
-        public SolitaireGame(SpriteBatch spriteBatch, DragonDrop<IDragonDropItem> dragonDrop,  int stackOffsetH, int stackOffsetV, ContentManager Content, MainGame game) : base(spriteBatch, dragonDrop, stackOffsetH, stackOffsetV)
+        public SolitaireGame(SpriteBatch spriteBatch,  int stackOffsetH, int stackOffsetV, ContentManager Content, MainGame game) : base(spriteBatch, game, game.viewPort, stackOffsetH, stackOffsetV)
         {
             this.spriteBatch = spriteBatch;
-            this.dragonDrop = dragonDrop;
+            
             this.Content = Content;
             this.mainGame = game;
             LoadContent();

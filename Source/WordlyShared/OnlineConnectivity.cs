@@ -1,6 +1,11 @@
-﻿using com.shephertz.app42.paas.sdk.csharp;
+﻿#if WINDOWS_UAP
+using com.shephertz.app42.paas.sdk.windows;
+using com.shephertz.app42.paas.sdk.windows.game;
+#else
+using com.shephertz.app42.paas.sdk.csharp;
 using com.shephertz.app42.paas.sdk.csharp.game;
-using com.shephertz.app42.gaming.multiplayer.client;
+
+#endif
 
 using System;
 using System.Collections.Generic;
@@ -9,6 +14,7 @@ using com.shephertz.app42.gaming.multiplayer.client.listener;
 using com.shephertz.app42.gaming.multiplayer.client.events;
 using com.shephertz.app42.gaming.multiplayer.client.command;
 using System.Diagnostics;
+using com.shephertz.app42.gaming.multiplayer.client;
 
 namespace WordGame
 {
@@ -21,14 +27,34 @@ namespace WordGame
         public String RoomId { get; set; }
     }
 
+#if WINDOWS_UAP
+    public class Callback : App42Callback
+    {
+        public string foo {get;set;}
+        
+         void App42Callback.OnException(App42Exception exception)
+        {
+            Debug.WriteLine("Exception : " + exception);
+        }
+         void App42Callback.OnSuccess(Object response)
+        {
+            IList<Game> game = (List<Game>)response;
+            for (int i = 0; i < game.Count; i++)
+            {
+                Debug.WriteLine("gameName is " + game[i].GetName());
+                Debug.WriteLine("gameDescription is " + game[i].description);
+            }
+        }
+    }
+#endif
 
     public class OnlineConnectivity : ConnectionRequestListener, RoomRequestListener, NotifyListener, ZoneRequestListener, ChatRequestListener, UpdateRequestListener
     {
         string APP42_APPKEY = "33c63376a33cb750ce10d9e136df698975bcb56f9b59c46dd7490d10c879be4d";
         string APP42_APPSECRET = "67a2a211044b024871e84a2ce799b37c8c1596e5b939c53313863e1551508441";
         ServiceAPI serviceAPI;
-
         ScoreBoardService scoreSvc;
+
         public string CurrentUser
             {
                 get
@@ -36,7 +62,7 @@ namespace WordGame
                 string user;
 #if __ANDROID__
                 user = Android.OS.Build.Serial;
-#elif WINDOW_UAP 
+#elif WINDOW_UAP
                 var token = HardwareIdentification.GetPackageSpecificToken(null);
 	            var hardwareId = token.Id;
 	            var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(hardwareId);
@@ -99,6 +125,7 @@ namespace WordGame
         {
             try
             {
+
                 serviceAPI = new ServiceAPI(APP42_APPKEY, APP42_APPSECRET);
                 scoreSvc = serviceAPI.BuildScoreBoardService();
 
@@ -115,12 +142,20 @@ namespace WordGame
 
             }
         }
-        
+                
 
         public bool SubmitScore(string Level, int Score)
         {
+
+
+
+#if WINDOWS_UAP
+            var c = new Callback();
+            scoreSvc.SaveUserScore(Level, CurrentUser, Score, c);
+#else
             Game game = scoreSvc.SaveUserScore(Level, CurrentUser, Score);
-            
+#endif
+
             return true;
         }
 
@@ -167,6 +202,21 @@ namespace WordGame
         }
 
         public void onUnSubscribeRoomDone(RoomEvent eventObj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void onPrivateUpdateReceived(string s , byte[] b, bool fBool)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void onNextTurnRequest(string s)            
+        {
+            throw new NotImplementedException();
+        }
+
+        public void onSendPrivateUpdateDone(byte b)
         {
             throw new NotImplementedException();
         }

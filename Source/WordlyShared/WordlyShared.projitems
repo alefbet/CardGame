@@ -30,6 +30,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)MainGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MultiplayerGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OnlineConnectivity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pie2D.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TimedSolitaireGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SolitaireGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
@@ -70,12 +71,10 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ValidWords\Z Words.csv" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)Glide\license.txt" />
-    <Content Include="$(MSBuildThisFileDirectory)ViewportAdapters\license.txt" />
+    <None Include="$(MSBuildThisFileDirectory)ViewportAdapters\license.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)App42_CSHARP_SDK_2.2.dll" />
-    <None Include="$(MSBuildThisFileDirectory)Glide\readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)MonoGameShared\" />

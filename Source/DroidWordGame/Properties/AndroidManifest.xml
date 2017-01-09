@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.alefbetsw.wordily" android:versionName="1.0" android:installLocation="auto" android:versionCode="2">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.alefbetsw.wordily_new" android:versionName="1.0" android:installLocation="auto" android:versionCode="2">
 	<uses-sdk android:minSdkVersion="20" />
 	<application android:label="Wordily" android:icon="@drawable/ic_launcher"></application>
 </manifest>

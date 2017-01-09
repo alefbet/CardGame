@@ -93,8 +93,13 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <Reference Include="AppWarpMonoLibrary">
-      <HintPath>..\WordlyShared\AppWarpMonoLibrary.dll</HintPath>
+    <Reference Include="App42-WINDOWS-SDK-1.2, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\App42-WINDOWS-SDK-1.2.dll</HintPath>
+    </Reference>
+    <Reference Include="APPWARP_WINRT, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\APPWARP_WINRT.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\WindowsUniversal\MonoGame.Framework.dll</HintPath>
@@ -114,6 +119,8 @@
     <None Include="Content\deck\CardsForGame-NoFancyFont.pub" />
     <None Include="Content\deck\CardsForGame-Templated.pub" />
     <None Include="Content\deck\CardsForGame.pub" />
+    <Content Include="App42-WINDOWS-SDK-1.2.dll" />
+    <Content Include="APPWARP_WINRT.dll" />
     <Content Include="Content\gameplay\Cutive-Regular.ttf" />
     <None Include="Content\gameplay\Cutive.spritefont" />
     <None Include="Content\gameplay\GameOver.pdn" />
@@ -216,6 +223,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="..\WordlyShared\WordlyShared.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

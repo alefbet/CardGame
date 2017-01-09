@@ -138,10 +138,12 @@
     <Content Include="Content\gameplay\wordily.png" />
     <Content Include="Content\gameplay\wrongWord.png" />
     <Content Include="Content\mainscreen\Multiplayer.png" />
-    <Content Include="Content\mainscreen\Solitaire.png" />
+    <Content Include="Content\mainscreen\PlayClassic.png" />
+    <Content Include="Content\mainscreen\PlayTimed.png" />
     <Content Include="Content\mainscreen\speaker-off.png" />
     <Content Include="Content\mainscreen\speaker.png" />
     <Content Include="Content\mainscreen\settings.png" />
+    <Content Include="Content\mainscreen\Wordily.png" />
     <Content Include="Content\splashscreen\Alef.png" />
     <Content Include="Content\splashscreen\Bet.png" />
     <Content Include="Content\splashscreen\Software.png" />

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 //using System.Data;
 using System.Linq;
 using MonoGame.Ruge.ViewportAdapters;
+using System.Diagnostics;
 
 namespace MonoGame.Ruge.DragonDrop {
 
@@ -59,6 +60,40 @@ namespace MonoGame.Ruge.DragonDrop {
                 return new Vector2(point.X, point.Y);
 
             }
+        }
+
+        public void debug()
+        {
+            Debug.WriteLine("--------DragDropOrder-----");
+            
+
+            var items = dragItems.OrderBy(z => z.ZIndex).ToList();
+            foreach (var item in items)
+            {
+                var type = item.GetType();
+                string str = "type " + type.Name;
+                switch (type.Name)
+                {
+                    case "Card":
+                        var card = (CardEngine.Card) (object) item;
+                        var strFaceUp = (card.isFaceUp ? "face up" : "face down");
+                        str += " z" + card.ZIndex.ToString("00") + ": " + card.rank + " of " + card.suit + " (" + strFaceUp + ")";
+                        str += " pos: (" + card.Position.X + ", " + card.Position.Y + ")";
+                        break;
+                    case "Slot":
+                        var slot  = (CardEngine.Slot)(object) item;                                                
+                        str += " name: " + slot.name + " pos: (" + slot.Position.X + ", " + slot.Position.Y + ")";
+
+                        break;
+               }
+                Debug.WriteLine(str);
+                
+
+            }
+
+            
+                
+                
         }
 
         public Vector2 OldMouse {

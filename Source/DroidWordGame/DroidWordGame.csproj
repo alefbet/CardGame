@@ -155,7 +155,6 @@
     <None Include="Content\gameplay\GameOver.pdn" />
     <AndroidAsset Include="Content\gameplay\gameOverFont.spritefont" />
     <None Include="Content\mainscreen\Thumbs.db" />
-    <None Include="Content\splashscreen\Thumbs.db" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
@@ -233,7 +232,6 @@
     <AndroidAsset Include="Content\deck\noCards.png" />
     <AndroidAsset Include="Content\mainscreen\Multiplayer.png" />
     <AndroidAsset Include="Content\mainscreen\settings.png" />
-    <AndroidAsset Include="Content\mainscreen\Solitaire.png" />
     <AndroidAsset Include="Content\mainscreen\speaker-off.png" />
     <AndroidAsset Include="Content\mainscreen\speaker.png" />
     <AndroidAsset Include="Content\splashscreen\tiledBackground.png" />
@@ -294,6 +292,11 @@
   <ItemGroup>
     <AndroidAsset Include="Content\gameplay\ResumeGame.png" />
     <AndroidAsset Include="Content\gameplay\StartGame.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\mainscreen\PlayClassic.png" />
+    <AndroidAsset Include="Content\mainscreen\PlayTimed.png" />
+    <AndroidAsset Include="Content\mainscreen\Wordily.png" />
   </ItemGroup>
   <Import Project="..\WordlyShared\WordlyShared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

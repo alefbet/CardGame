@@ -55,8 +55,7 @@ namespace WordGame
 
         public OnlineConnectivity online;
 
-        public CheckValidWords validWords = new CheckValidWords();
-        DragonDrop<IDragonDropItem> dragonDrop;
+        public CheckValidWords validWords = new CheckValidWords();        
         
         Texture2D background;
         public Texture2D dimScreen;
@@ -73,8 +72,7 @@ namespace WordGame
             TouchPanel.EnableMouseTouchPoint = true;
             TouchPanel.EnableMouseGestures = true;
             TouchPanel.EnabledGestures = GestureType.DoubleTap | GestureType.FreeDrag | GestureType.Tap | GestureType.DragComplete;
-
-            currentAppState = AppState.MainScreen;
+            
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             
@@ -91,8 +89,7 @@ namespace WordGame
         {
             // TODO: Add your initialization logic here
             viewPort = new BoxingViewportAdapter(Window, GraphicsDevice, WINDOW_WIDTH, WINDOW_HEIGHT);
-            
-            dragonDrop = new DragonDrop<IDragonDropItem>(this, viewPort);
+                        
             base.Initialize();
         }
 
@@ -104,13 +101,13 @@ namespace WordGame
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            splashScreen = new SplashScreen(Content, spriteBatch);
+            splashScreen = new SplashScreen(Content, spriteBatch, this);
             splashScreen.SplashScreenEnded += SplashScreenEnded;
 
             mainScreen = new MainScreen(Content, spriteBatch, this);
-            solitaireGame = new SolitaireGame(spriteBatch, dragonDrop, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
-            multiplayerGame = new MultiPlayerGame(spriteBatch, dragonDrop, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
-            timedSolitaireGame = new TimedSolitaireGame(spriteBatch, dragonDrop, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
+            solitaireGame = new SolitaireGame(spriteBatch, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
+            multiplayerGame = new MultiPlayerGame(spriteBatch, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
+            timedSolitaireGame = new TimedSolitaireGame(spriteBatch, SolitaireGame.stackOffsetHorizontal, SolitaireGame.stackOffsetVertical, Content, this);
 
             background = Content.Load<Texture2D>("tiledBackground");
 
@@ -125,7 +122,7 @@ namespace WordGame
 
         private void SplashScreenEnded(object sender, EventArgs e)
         {
-            this.currentAppState = AppState.SolitaireGame;
+            this.currentAppState = AppState.MainScreen;
         }
 
         /// <summary>

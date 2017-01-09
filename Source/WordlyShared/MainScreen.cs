@@ -24,8 +24,8 @@ namespace WordGame
         
                 
 
-        Texture2D solitaire, timedSolitaire, multiplayer, settings, sound, soundOff, info;
-        Rectangle solitaireRect, timedSolitaireRect, multiplayerRect, settingsRect, soundRect, infoRect;
+        Texture2D solitaire, timedSolitaire, multiplayer, settings, sound, soundOff, info, logo;
+        Rectangle solitaireRect, timedSolitaireRect, multiplayerRect, settingsRect, soundRect, infoRect, logoRect;
 
 
 
@@ -41,17 +41,21 @@ namespace WordGame
 
         public void LoadContent()
         {
-            solitaire = Content.Load<Texture2D>("mainscreen/solitaire");
-            solitaireRect = new Rectangle(100, 300, 500, 500);
+
+            logo = Content.Load<Texture2D>("mainscreen/wordily");
+            logoRect = new Rectangle(mainGame.MID_WIDTH - logo.Width/2, 20, logo.Width, logo.Height);
+
+            solitaire = Content.Load<Texture2D>("mainscreen/playClassic");
+            solitaireRect = new Rectangle(mainGame.MID_WIDTH-600, logoRect.Bottom + 150, solitaire.Width, solitaire.Height);
             
 
-            timedSolitaire = Content.Load<Texture2D>("mainscreen/solitaire");
-            timedSolitaireRect = new Rectangle(740, 300, 500, 500);
-            
+            timedSolitaire = Content.Load<Texture2D>("mainscreen/playTimed");
+            timedSolitaireRect = new Rectangle(mainGame.MID_WIDTH - 100, logoRect.Bottom + 150, timedSolitaire.Width, timedSolitaire.Height);
+
 
             multiplayer = Content.Load<Texture2D>("mainscreen/multiplayer");
-            multiplayerRect = new Rectangle(1340,300, 500, 500);
-            
+            multiplayerRect = new Rectangle(mainGame.MID_WIDTH + 400, logoRect.Bottom + 150, multiplayer.Width, multiplayer.Height);
+
 
             sound = Content.Load<Texture2D>("mainscreen/speaker");
             soundOff = Content.Load<Texture2D>("mainscreen/speaker-off");
@@ -98,10 +102,11 @@ namespace WordGame
 
         public void Draw(GameTime time)
         {
+            spriteBatch.Draw(logo, logoRect, Color.White);
             spriteBatch.Draw(solitaire, solitaireRect, Color.White);
             spriteBatch.Draw(timedSolitaire, timedSolitaireRect, Color.White);
             spriteBatch.Draw(multiplayer, multiplayerRect, Color.White);
-            spriteBatch.Draw(sound, soundRect, Color.White);
+            
 
 
         }

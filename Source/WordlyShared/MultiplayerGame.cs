@@ -77,10 +77,9 @@ namespace WordGame
         MoveImage curWordScoreImage = null;
         
 
-        public MultiPlayerGame(SpriteBatch spriteBatch, DragonDrop<IDragonDropItem> dragonDrop,  int stackOffsetH, int stackOffsetV, ContentManager Content, MainGame game) : base(spriteBatch, dragonDrop, stackOffsetH, stackOffsetV)
+        public MultiPlayerGame(SpriteBatch spriteBatch, int stackOffsetH, int stackOffsetV, ContentManager Content, MainGame game) : base(spriteBatch, game, game.viewPort, stackOffsetH, stackOffsetV)
         {
-            this.spriteBatch = spriteBatch;
-            this.dragonDrop = dragonDrop;
+            this.spriteBatch = spriteBatch;            
             this.Content = Content;
             this.mainGame = game;
             LoadContent();

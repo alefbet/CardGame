@@ -25,9 +25,9 @@ namespace MonoGame.Ruge.CardEngine {
         
         public List<Stack> stacks = new List<Stack>();
                 
-        public Table(SpriteBatch spriteBatch, DragonDrop<IDragonDropItem> dragonDrop, int stackOffsetH, int stackOffsetV, Texture2D cardBack = null, Texture2D slotTex = null) {
+        public Table(SpriteBatch spriteBatch, Game game, ViewportAdapters.ViewportAdapter viewport, int stackOffsetH, int stackOffsetV, Texture2D cardBack = null, Texture2D slotTex = null) {
             this.spriteBatch = spriteBatch;
-            this.dragonDrop = dragonDrop;
+            this.dragonDrop = new DragonDrop<IDragonDropItem>(game, viewport);
             stackOffsetHorizontal = stackOffsetH;
             stackOffsetVertical = stackOffsetV;
             this.cardBack = cardBack;
@@ -144,6 +144,8 @@ namespace MonoGame.Ruge.CardEngine {
         {
             foreach (var stack in stacks)
                 stack.debug();
+
+            dragonDrop.debug();
         }
 
         public void ProcessDrag(Point point, GestureSample gesture, GameTime gameTime)

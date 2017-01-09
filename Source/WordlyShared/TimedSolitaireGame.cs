@@ -37,10 +37,14 @@ namespace WordGame
         public static new int stackOffsetVertical = 50;
         const int numStacks = 8;
         const int numCardsInStack = 6;
+        const float cardAnimationTime = 1.2f;
+
 
         const int kickSound = 0;
         const int playSound = 2;
         const int restackSound = 3;
+
+        int numJokersUsed = 0;
 
         public bool quitGame = false;
 
@@ -51,21 +55,21 @@ namespace WordGame
         Rectangle scoreRect, scoreLabelRect, addWordRect, clearRect, gameOverRect, startGameRect;
         Rectangle timerRect;
         Rectangle gameOverPlayAgainRect, exitRect;
-        
+
+        Pie2D TimerDisplay;
 
         MoveImage curWordScoreImage = null;
 
         bool postedGameScores;
 
-        public enum GameState { Starting, Playing, Paused, GameOver};
+        public enum GameState { NewGame, AnimatingStart, Playing, Paused, GameOver};
 
-        public GameState gameState = GameState.Starting;
+        public GameState gameState = GameState.NewGame;
 
 
-        public TimedSolitaireGame(SpriteBatch spriteBatch, DragonDrop<IDragonDropItem> dragonDrop,  int stackOffsetH, int stackOffsetV, ContentManager Content, MainGame game) : base(spriteBatch, dragonDrop, stackOffsetH, stackOffsetV)
+        public TimedSolitaireGame(SpriteBatch spriteBatch,  int stackOffsetH, int stackOffsetV, ContentManager Content, MainGame game) : base(spriteBatch, game, game.viewPort, stackOffsetH, stackOffsetV)
         {
-            this.spriteBatch = spriteBatch;
-            this.dragonDrop = dragonDrop;
+            this.spriteBatch = spriteBatch;            
             this.Content = Content;
             this.mainGame = game;
             LoadContent();
@@ -269,12 +273,19 @@ namespace WordGame
 
             jokerSlot = new Slot(jokerTex, spriteBatch)
             {
-                Position = new Vector2(x, y),
+                Position = new Vector2(0, -1 * CARD_HEIGHT),
                 name = "Joker"
             };
             jokerDeck = AddStack(jokerSlot, StackType.deck, StackMethod.horizontal);
-                        
-            drawPile.slot = jokerSlot;
+
+            var drawSlot = new Slot(slotTex, spriteBatch)
+            {
+                Position = new Vector2(0, -1 * CARD_HEIGHT),
+                name = "Draw"
+            };
+
+
+            drawPile.slot = drawSlot;;
 
             y += slotTex.Height + y;
                        
@@ -293,7 +304,11 @@ namespace WordGame
                 // add crunch for these stacks
                 newStack.crunchItems = 24;                
             }
-            
+
+            TimerDisplay = new Pie2D(mainGame, slotTex.Width /2, MathHelper.ToRadians(90), 8, false);
+            //TimerDisplay.Position = new Vector2(2 * x + slotTex.Width + slotTex.Width/2, y + slotTex.Height/2);
+            TimerDisplay.Position = new Vector2(900,1000);
+            TimerDisplay.LoadContent();
         }
 
         
@@ -309,27 +324,23 @@ namespace WordGame
             drawPile.freshDeck();
             drawPile.shuffle();
             drawPile.UpdatePositions();
-            InvalidWords = 0;
-            
+
+            numJokersUsed = 0;            
             completedWords = new List<CompletedWord>();
             postedGameScores = false;
-
-            foreach (var card in drawPile.cards)
-            {
-                
-            }
             
-
             int y = 10;
             y += slotTex.Height + y;
-
+            float delay = 0;
+            
             for (var i = 0; i < numStacks; i++)
             {
 
                 //var newX = x + x * i + slotTex.Width * i;
 
                 var pos = stackPositions[i];
-                                                                
+
+                                   
                 for (var j = 0; j < numCardsInStack; j++)
                 {
 
@@ -345,17 +356,16 @@ namespace WordGame
                     moveCard.SelectedOverlayTexture = cardSelectedTex;
 
 
-                    moveCard.snapPosition = new Vector2(pos.X, pos.Y + stackOffsetVertical * j);                    
-                    moveCard.Position = jokerSlot.Position;
+                    moveCard.snapPosition = new Vector2(pos.X, pos.Y + stackOffsetVertical * j);                                        
                     moveCard.IsDraggable = false;
                     moveCard.isFaceUp = false;
                     moveCard.ZIndex = j;
-                    var delay = i * 2.5f + j * 2.5f;
+                    delay =  (j * numStacks * cardAnimationTime) + (i* cardAnimationTime);
 
                     if (j == (numCardsInStack -1))
                     {
                         
-                        tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 5,5)
+                        tween.Tween(moveCard, new { Position = moveCard.snapPosition }, cardAnimationTime, delay)
                             .OnBegin(() => setFaceUpAndDraggable(moveCard))
                             .OnComplete(afterAnimate)
                             .Ease(Ease.CubeOut);
@@ -363,12 +373,13 @@ namespace WordGame
                     else
                     {
                         
-                        tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 5, delay)
+                        tween.Tween(moveCard, new { Position = moveCard.snapPosition }, cardAnimationTime, delay)
                             .Ease(Ease.CubeOut)
                             .OnComplete(afterAnimate);
                     }
-                                        
-                    stacks[i+2].addCard(moveCard);                    
+                    
+                    stacks[i+2].addCard(moveCard);
+                    
                 }
 
                        
@@ -377,9 +388,10 @@ namespace WordGame
 
             drawPile.cards.Clear();
 
-            for (int c = 0; c < 5; c++)
+            for (int c = 0; c < 20; c++)
             {
-                var card = new Card("JOKER", jokerTex, spriteBatch) { isFaceUp = true };
+                var card = new Card("JOKER", jokerTex, spriteBatch) { isFaceUp = true, Position = jokerSlot.Position };
+
                 jokerDeck.addCard(card);
 
                 dragonDrop.Add(card);
@@ -389,13 +401,24 @@ namespace WordGame
                 card.SetTexture(Content.Load<Texture2D>(location));
                 card.SelectedOverlayTexture = cardSelectedTex;
             }
-            
+
+            tween.Tween(jokerSlot, new { Position = new Vector2(20,20) }, 2.5f, delay+ cardAnimationTime)
+                            .Ease(Ease.CubeOut)
+                            .OnComplete(DoneAnimatingCards);
+
             if (!muteSound) soundFX[playSound].Play();
 
-            gameState = GameState.Playing;
-            GameTimer = new TimeSpan(0, 0, 30);
+            gameState = GameState.AnimatingStart;
+            TotalGameTime = new TimeSpan(0, 2, 00);
+            GameTimer = new TimeSpan(0, 2, 0);
 
             debug();
+        }
+
+        private void DoneAnimatingCards()
+        {
+            gameState = GameState.Playing;
+            
         }
 
         private void setFaceUpAndDraggable(Card c)
@@ -510,6 +533,7 @@ namespace WordGame
 
 
         TimeSpan GameTimer;
+        TimeSpan TotalGameTime;
         bool isTimerRunning;
 
         void UpdateTimer (GameTime gameTime)
@@ -525,6 +549,8 @@ namespace WordGame
                 case GameState.Playing:
                     isTimerRunning = true;
                     GameTimer = GameTimer.Subtract(gameTime.ElapsedGameTime);
+                    float percentDown = 1f - ((float) GameTimer.TotalMilliseconds / (float) TotalGameTime.TotalMilliseconds);
+                    //TimerDisplay.Angle = MathHelper.ToRadians(percentDown * 360);
                     if (GameTimer.CompareTo(TimeSpan.Zero) < 0)
                     {
                         gameState = GameState.GameOver;
@@ -577,7 +603,7 @@ namespace WordGame
                     case GestureType.Tap:
                         switch (gameState)
                         {
-                            case GameState.Starting:
+                            case GameState.NewGame:
                                 if (exitRect.Contains(point))
                                     mainGame.currentAppState = MainGame.AppState.MainScreen;
 
@@ -604,7 +630,7 @@ namespace WordGame
 
                                 if (jokerSlot.Border.Contains(point))
                                 {
-                                    DealJoker();
+                                    PlayJokerToEndOfWord();
                                 }
 
                                 // check if it was on one of the table stacks
@@ -713,7 +739,7 @@ namespace WordGame
         {
             if (!postedGameScores)
             {
-                mainGame.online.SubmitScore("Level 1", TotalScore);
+                mainGame.online.SubmitScore("Timed Level 1", TotalScore);
                 postedGameScores = true;
             }
         }
@@ -730,9 +756,11 @@ namespace WordGame
             return ret;
         }
 
-        private void DealJoker()
+        private void PlayJokerToEndOfWord()
         {
-                       
+            var topCard = jokerDeck.topCard();
+            Debug.WriteLine("play-card: " + topCard.wordValue + " return-stack: " + topCard.stack.name);
+            PlayCardToEndOfCurrentWord(topCard);
         }
 
         private void PlayAddWord()
@@ -899,13 +927,20 @@ namespace WordGame
         {
             base.Draw(gameTime);
             spriteBatch.Draw(addWordTex, addWordRect, addWordColor);
-
+            TimerDisplay.Draw();
             switch (gameState)
             {
+                case GameState.AnimatingStart:
+                    spriteBatch.Draw(cardBack, new Vector2(20, 20), Color.White);
+                    goto case GameState.Playing;
                 case GameState.Playing:
+                    
                     Util.DrawString(spriteBatch, font, "Score", scoreLabelRect, Util.Alignment.Center, Color.White);
                     Util.DrawString(spriteBatch, font, TotalScore.ToString(), scoreRect, Util.Alignment.Center, Color.White);
                     Util.DrawString(spriteBatch, font, GameTimer.ToString(@"mm\:ss"), timerRect, Util.Alignment.Center, Color.White);
+
+                    
+
 
                     if (CurrentWord.Length > 0)
                     {
@@ -929,7 +964,7 @@ namespace WordGame
                     }
                     break;
 
-                case GameState.Starting:
+                case GameState.NewGame:
                     spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.White * 0.8f);
 
                     string readyToPlay1 = "Ready to play timed round?";

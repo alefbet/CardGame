@@ -211,7 +211,7 @@ namespace MonoGame.Ruge.CardEngine {
                 case GestureType.FreeDrag:
                 case GestureType.HorizontalDrag:
                 case GestureType.VerticalDrag:
-                    if (Contains(point.ToVector2()) && IsSelected)
+                    if (IsSelected)
                     {                        
                         Position += gesture.Delta;
                         Update(gameTime);
@@ -302,6 +302,7 @@ namespace MonoGame.Ruge.CardEngine {
                 spriteBatch.Draw(Texture, Position, null, Color.White, Rotation, new Vector2(0,0), Scale,SpriteEffects.None, 0 );
                 if (IsSelected && isFaceUp && SelectedOverlayTexture != null)
                     spriteBatch.Draw(SelectedOverlayTexture, Position, null, Color.White, Rotation, new Vector2(0, 0), Scale, SpriteEffects.None, 0);
+                
 
             }
         }
