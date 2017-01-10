@@ -298,6 +298,9 @@
     <AndroidAsset Include="Content\mainscreen\PlayTimed.png" />
     <AndroidAsset Include="Content\mainscreen\Wordily.png" />
   </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\gameplay\Timer.png" />
+  </ItemGroup>
   <Import Project="..\WordlyShared\WordlyShared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

@@ -43,18 +43,18 @@ namespace WordGame
         {
 
             logo = Content.Load<Texture2D>("mainscreen/wordily");
-            logoRect = new Rectangle(mainGame.MID_WIDTH - logo.Width/2, 100, logo.Width, logo.Height);
+            logoRect = new Rectangle(MainGame.MID_WIDTH - logo.Width/2, 100, logo.Width, logo.Height);
 
             solitaire = Content.Load<Texture2D>("mainscreen/playClassic");
-            solitaireRect = new Rectangle(mainGame.MID_WIDTH-600, logoRect.Bottom + 150, solitaire.Width, solitaire.Height);
+            solitaireRect = new Rectangle(MainGame.MID_WIDTH-600, logoRect.Bottom + 150, solitaire.Width, solitaire.Height);
             
 
             timedSolitaire = Content.Load<Texture2D>("mainscreen/playTimed");
-            timedSolitaireRect = new Rectangle(mainGame.MID_WIDTH - 100, logoRect.Bottom + 150, timedSolitaire.Width, timedSolitaire.Height);
+            timedSolitaireRect = new Rectangle(MainGame.MID_WIDTH - 100, logoRect.Bottom + 150, timedSolitaire.Width, timedSolitaire.Height);
 
 
             multiplayer = Content.Load<Texture2D>("mainscreen/multiplayer");
-            multiplayerRect = new Rectangle(mainGame.MID_WIDTH + 400, logoRect.Bottom + 150, multiplayer.Width, multiplayer.Height);
+            multiplayerRect = new Rectangle(MainGame.MID_WIDTH + 400, logoRect.Bottom + 150, multiplayer.Width, multiplayer.Height);
 
 
             sound = Content.Load<Texture2D>("mainscreen/speaker");
