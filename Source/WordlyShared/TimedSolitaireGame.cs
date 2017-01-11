@@ -464,24 +464,25 @@ namespace WordGame
             animationCount = 0;
         }
 
-        private void afterAnimateCardToStack(Card card, Stack stack)
+        private void afterAnimateCardToPlayWord(Card card, Stack stack)
         {
             card.ZIndex -= ON_TOP;
             card.isSnapAnimating = false;
             card.IsSelected = false;
             card.allowsSelection = true;
+            cardsAnimatingToWord--;
             if (stack.Count == 0)
                 card.MoveToEmptyStack(stack);
             else
                 //card.SetParent(stack.cards[stack.Count - 1]);
                 stack.addCard(card);
             if (!muteSound) soundFX[playSound].Play(.3f, 0, 0);
-            animationCount = 0;
+            animationCount--;
         }
 
         private void afterAnimatePlayCardToEmptyStack(Card card, Stack stack)
         {
-            afterAnimateCardToStack(card, stack);
+            afterAnimateCardToPlayWord(card, stack);
             if (card.previousStack.Count > 0)
             {
                 card.previousStack.topCard().isFaceUp = true;
@@ -893,22 +894,23 @@ namespace WordGame
             }
         }
 
+        int cardsAnimatingToWord = 0;
         private void PlayCardToEndOfCurrentWord(Card topCard)
         {
-            Vector2 pos = currentWordStack.slot.Position;
-            pos.X += currentWordStack.Count * stackOffsetHorizontal;
-            
-            if (true)
-            {
-                animationCount++;
-                topCard.ZIndex += ON_TOP;
 
-                topCard.previousStack = topCard.stack;
-                topCard.allowsSelection = true;
-                tween.Tween(topCard, new { Position = pos }, 3)
-                    .Ease(Ease.CubeInOut)
-                    .OnComplete(() => afterAnimateCardToStack(topCard, currentWordStack));
-            }        
+            Vector2 pos = currentWordStack.slot.Position;
+            pos.X += (currentWordStack.Count + cardsAnimatingToWord++) * stackOffsetHorizontal;
+            
+            
+            animationCount++;
+            topCard.ZIndex += ON_TOP;
+
+            topCard.previousStack = topCard.stack;
+            topCard.allowsSelection = true;
+            tween.Tween(topCard, new { Position = pos }, 3)
+                .Ease(Ease.CubeInOut)
+                .OnComplete(() => afterAnimateCardToPlayWord(topCard, currentWordStack));
+            
         }
 
         private void PlayCardToEmptyStack(Card topCard, Stack emptyStack)
