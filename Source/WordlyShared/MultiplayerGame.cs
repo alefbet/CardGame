@@ -22,16 +22,17 @@ namespace WordGame
     public class Player
     {
         public string Name;
-        public Stack Hand;
+        public List<Card> Hand;
         public List<String> WordsInHand;
         public List<int> Scores;
         public Texture2D Avatar;
-        public Color AvatarColor;
+        public bool isCurrentPlayer;        
         public MoveImage scoreImageAnimate;
         public bool LeftGame;
 
         public Player()
-        {            
+        {
+            Hand = new List<Card>();
         }
     }
 
@@ -320,7 +321,9 @@ namespace WordGame
             Random rand = new Random();
             int randomPlayer = rand.Next(Players.Count());
             randomPlayer = 0;
+            
             CurrentPlayer = Players[randomPlayer].Name;
+            Players.All(p => { p.isCurrentPlayer = p.Name == Players[randomPlayer].Name; return true; });
 
             InitializeTable();
 
@@ -341,7 +344,7 @@ namespace WordGame
             {
                 for (int p= startPlayer; p < startPlayer + Players.Count(); p++)
                 {
-                    Players[p % Players.Count()].Hand.addCard(drawPile.drawCard());
+                    Players[p % Players.Count()].Hand.Add(drawPile.drawCard());
                 }
             }
         }
@@ -372,14 +375,14 @@ namespace WordGame
             {
                 Debug.WriteLine("Initializing room: " + e.RoomId + "  User: " + user);
                 var playerAvatar = await Util.GetWebImageAsStream("https://api.adorable.io/avatars/" + avatarWidth + "/wordly-" + user);
-                Players.Add(new Player() { Name = user, AvatarColor = Color.Red, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
+                Players.Add(new Player() { Name = user, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
             }
         }
 
         async void UserJoined(object sender, string user)
         {
             var playerAvatar = await Util.GetWebImageAsStream("https://api.adorable.io/avatars/" + avatarWidth + "/wordly-" + user);
-            Players.Add(new Player() { Name = user, AvatarColor = Color.Red, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
+            Players.Add(new Player() { Name = user, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
         }
 
         void UserLeft(object sender, string user)
@@ -514,12 +517,12 @@ namespace WordGame
             {                
                 if (p.Name == mainGame.online.CurrentUser)
                 {
-                    p.Hand = cardsInHand;                    
+                    //p.Hand = cardsInHand;                    
                 }
                 else
                 {
-                    var slot = new Slot(p.Avatar, spriteBatch) { IsDraggable = false };
-                    p.Hand = AddStack(slot, StackType.undefined, StackMethod.undefined);
+                    //var slot = new Slot(p.Avatar, spriteBatch) { IsDraggable = false, Position = new Vector2(otherPlayersRect.X, otherPlayersRect.Y) };
+                    //p.Hand = AddStack(slot, StackType.undefined, StackMethod.undefined);
                 }
             }
 
