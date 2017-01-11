@@ -17,7 +17,7 @@ namespace WordGame
         SpriteBatch spriteBatch;
         public enum AppState { SplashScreen, MainScreen, SolitaireGame, TimedSolitaireGame, MultiPlayerGame }
 
-        AppState _currentAppState = AppState.SplashScreen;
+        AppState _currentAppState = AppState.MainScreen;
         public AppState currentAppState
         {
             get

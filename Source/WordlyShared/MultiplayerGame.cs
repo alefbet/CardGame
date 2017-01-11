@@ -279,18 +279,32 @@ namespace WordGame
             //
             Players = new List<Player>();
 
-
+            gameState = MultiplayerGameState.Connecting;
             mainGame.online.Connect();
             mainGame.online.GetInitialRoomState += OnGetInitialRoomState;
             mainGame.online.UserJoined += UserJoined;
             mainGame.online.UserLeft += UserLeft;
             mainGame.online.RoomStateChanged += OnRoomStateChanged;
             mainGame.online.RecievedGameMessage += OnReceivedMove;
-            gameState = MultiplayerGameState.Connecting;
+            
 
+#if DEBUG
+
+            SetupLocalGame();
+#endif            
             SetTable();
         }
-
+        void SetupLocalGame(int otherPlayers = 1)
+        {
+            OnRoomJoinEventArgs newRoom = new OnRoomJoinEventArgs();
+            newRoom.RoomOwner = mainGame.online.CurrentUser;
+            newRoom.RoomId = "localTest";
+            var player2 = Guid.NewGuid().ToString();
+            newRoom.Users = new string[] { mainGame.online.CurrentUser};
+            OnGetInitialRoomState(this, newRoom);
+            UserJoined(this, player2);
+        }
+            
         public void StartGame()
         {
             gameState = MultiplayerGameState.Starting;
@@ -305,12 +319,16 @@ namespace WordGame
             
             Random rand = new Random();
             int randomPlayer = rand.Next(Players.Count());
+            randomPlayer = 0;
             CurrentPlayer = Players[randomPlayer].Name;
 
             InitializeTable();
+
             SetupCardsForRound(CurrentRound, randomPlayer);
 
             SetTable();
+            
+            
             SetupNewRound();
             
         }
@@ -323,7 +341,7 @@ namespace WordGame
             {
                 for (int p= startPlayer; p < startPlayer + Players.Count(); p++)
                 {
-                    Players[p].Hand.addCard(drawPile.drawCard());
+                    Players[p % Players.Count()].Hand.addCard(drawPile.drawCard());
                 }
             }
         }
@@ -340,7 +358,7 @@ namespace WordGame
 
         private async void OnGetInitialRoomState(object sender, OnRoomJoinEventArgs e)
         {
-            if (e.Users.Count() == 1 && (e.RoomOwner == mainGame.online.CurrentUser))
+            if (e.Users.Count() == 1)
             {
                 gameState = MultiplayerGameState.WaitingForPlayers;
             }
@@ -398,7 +416,19 @@ namespace WordGame
         {
             var xBufferForDragDrop = 20;
             
-            var delay = 0;            
+            if (CurrentPlayer == mainGame.online.CurrentUser)
+            {
+                gameState = MultiplayerGameState.CurrentPlayerTurn;
+            }
+            else
+            {
+                gameState = MultiplayerGameState.OtherPlayerTurn;
+            }
+
+            var delay = 0;
+
+            otherPlayersRect = new Rectangle(1980 - (avatarWidth + 10) * 3, 20 + playingAreaTex.Height - avatarWidth, (avatarWidth + 10) * 3, avatarWidth);
+
             for (var c = 0; c < CurrentRound; c++)
             {
                 var p = 0;
@@ -641,23 +671,24 @@ namespace WordGame
                     overlayString = "Waiting for players...";
                     
                     drawAvatars = true;
-                    otherPlayersRect = Rectangle.Empty;
+                    
                     break;
                 case MultiplayerGameState.WaitingForStart:
                     drawOverlay = true;
-                    drawAvatars = true;
-                    otherPlayersRect = Rectangle.Empty;
+                    drawAvatars = true;                    
+                    
                     overlayString = "Waiting for game to start...";
+                    
                     break;
                 case MultiplayerGameState.Starting:
                     drawOverlay = true;
-                    drawAvatars = true;
-                    otherPlayersRect = Rectangle.Empty;
+                    drawAvatars = true;                    
                     overlayString = "Starting \nSelecting first dealer...";
                     break;
                 case MultiplayerGameState.OtherPlayerTurn:
                 case MultiplayerGameState.CurrentPlayerTurn:
-                    otherPlayersRect = new Rectangle(1980 - (avatarWidth+ 10) * 3, 20 + playingAreaTex.Height - avatarWidth, (avatarWidth + 10) * 3, avatarWidth);
+                    drawOverlay = false;
+                    
                     break;
             }
             while (TouchPanel.IsGestureAvailable)
@@ -796,18 +827,14 @@ namespace WordGame
 
         public new void Draw(GameTime gameTime)
         {
-
+            // draw stuff before overlays & avatars
             switch (gameState)
             {
                 case MultiplayerGameState.Connecting:
                     break;
 
                 case MultiplayerGameState.WaitingForPlayers:
-                    if (Players.Count() > 1)
-                        spriteBatch.Draw(startGameTex, startGameRect, Color.White);
-
-                    break;
-
+                    break;                                        
                 case MultiplayerGameState.CurrentPlayerTurn:
                 case MultiplayerGameState.OtherPlayerTurn:
 
@@ -818,34 +845,56 @@ namespace WordGame
 
             if (drawOverlay)
             {
-                spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, 1980, 1020), Color.LightGray * 0.6f);
-                Util.DrawString(spriteBatch, gameOverFont, overlayString, new Rectangle(0, 200, 1980, 250), Util.Alignment.Center, Color.White);
+                spriteBatch.Draw(mainGame.dimScreen, new Rectangle(0, 0, MainGame.WINDOW_WIDTH, MainGame.WINDOW_HEIGHT), Color.LightGray * 0.6f);
+                Util.DrawString(spriteBatch, gameOverFont, overlayString, new Rectangle(0, 200, MainGame.WINDOW_WIDTH, 250), Util.Alignment.Center, Color.White);
             }
 
+            var centeredAvatarRect = new Rectangle(MainGame.MID_WIDTH - ((avatarWidth + 10) * Players.Count - 1) / 2, 400, ((avatarWidth + 10) * Players.Count - 1), avatarWidth);
 
-            if (drawAvatars)
+            switch (gameState)
             {
-                if (otherPlayersRect == Rectangle.Empty)
-                {
-                    otherPlayersRect = new Rectangle(1980 / 2 - ((avatarWidth + 10) * Players.Count - 1) / 2, 400, ((avatarWidth + 10) * Players.Count - 1), avatarWidth);
-                }
-                var p = 0;
-                for (var player = 0; player < Players.Count; player++)
-                {
-                    if (Players[player].Name != mainGame.online.CurrentUser)
-                    {
-                        var pos = otherPlayersRect;
-                        pos.X += p++ * (avatarWidth + 10);
-                        pos.Width = avatarWidth;
-                        spriteBatch.Draw (Players[player].Avatar, pos, Color.White);                        
-                    }
-                }
+                case MultiplayerGameState.Connecting:
+                    break;
+
+                case MultiplayerGameState.WaitingForStart:                    
+                    DrawAvatars(centeredAvatarRect);
+                    break;
+
+                case MultiplayerGameState.WaitingForPlayers:                    
+                    DrawAvatars(centeredAvatarRect);
+                    if (Players.Count() > 1)
+                        spriteBatch.Draw(startGameTex, startGameRect, Color.White);
+                    break;
+
+                case MultiplayerGameState.CurrentPlayerTurn:
+                case MultiplayerGameState.OtherPlayerTurn:                    
+                    DrawAvatars(otherPlayersRect);
+
+                    break;
+
             }
 
             spriteBatch.Draw(exitTex, exitRect, Color.White);
 
 
         }
-        
+
+        public void DrawAvatars(Rectangle avatarRect)
+        {
+            var p = 0;
+            for (var player = 0; player < Players.Count; player++)
+            {
+                if (Players[player].Name != mainGame.online.CurrentUser)
+                {
+                    var pos = avatarRect;
+                    pos.X += p++ * (avatarWidth + 10);
+                    pos.Width = avatarWidth;
+                    spriteBatch.Draw(Players[player].Avatar, pos, Color.White);
+                }
+            }
+        }
     }
 }
+
+    
+

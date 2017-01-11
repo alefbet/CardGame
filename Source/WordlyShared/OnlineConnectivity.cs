@@ -80,6 +80,7 @@ namespace WordGame
 }
 #else
                 user = Plugin.Settings.CrossSettings.Current.GetValueOrDefault("UserName", Guid.NewGuid().ToString());
+                Plugin.Settings.CrossSettings.Current.AddOrUpdateValue("UserName", user);
 #endif
                 return user;
             }
