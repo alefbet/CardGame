@@ -29,6 +29,7 @@ namespace WordGame
         public bool isCurrentPlayer;        
         public MoveImage scoreImageAnimate;
         public bool LeftGame;
+        public Vector2 Position;        
 
         public Player()
         {
@@ -52,11 +53,20 @@ namespace WordGame
         const int MaxRound = 10;        
 
         public List<Player> Players;
+
+        
         public string CurrentPlayer;
+        public string HostPlayer;
+
+        public int PlayerIndex (string PlayerName)
+        {
+            return Players.FindIndex(p => p.Name == PlayerName);
+        } 
+
 
         const int CARD_WIDTH = 210;
         const int CARD_HEIGHT = 252;
-        const int avatarWidth = 150;
+        const int avatarWidth = 100;
         public static new int stackOffsetHorizontal = 50;
         public static new int stackOffsetVertical = 50;
         const int numWordSpaces = 5;
@@ -375,15 +385,25 @@ namespace WordGame
             {
                 Debug.WriteLine("Initializing room: " + e.RoomId + "  User: " + user);
                 var playerAvatar = await Util.GetWebImageAsStream("https://api.adorable.io/avatars/" + avatarWidth + "/wordly-" + user);
-                Players.Add(new Player() { Name = user, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
+                Players.Add(new Player() { Name = user, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });                
             }
+            HostPlayer = e.RoomOwner;
+
+            UpdatePlayersPositions();
         }
 
         async void UserJoined(object sender, string user)
         {
             var playerAvatar = await Util.GetWebImageAsStream("https://api.adorable.io/avatars/" + avatarWidth + "/wordly-" + user);
             Players.Add(new Player() { Name = user, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
+            UpdatePlayersPositions();
         }
+
+        void UpdatePlayersPositions()
+        {
+
+        }
+
 
         void UserLeft(object sender, string user)
         {
@@ -859,19 +879,19 @@ namespace WordGame
                 case MultiplayerGameState.Connecting:
                     break;
 
-                case MultiplayerGameState.WaitingForStart:                    
-                    DrawAvatars(centeredAvatarRect);
+                case MultiplayerGameState.WaitingForStart:
+                    DrawAvatars(true);
                     break;
 
-                case MultiplayerGameState.WaitingForPlayers:                    
-                    DrawAvatars(centeredAvatarRect);
+                case MultiplayerGameState.WaitingForPlayers:                           
+                    DrawAvatars(true);
                     if (Players.Count() > 1)
                         spriteBatch.Draw(startGameTex, startGameRect, Color.White);
                     break;
 
                 case MultiplayerGameState.CurrentPlayerTurn:
                 case MultiplayerGameState.OtherPlayerTurn:                    
-                    DrawAvatars(otherPlayersRect);
+                    DrawAvatars();
 
                     break;
 
@@ -882,16 +902,16 @@ namespace WordGame
 
         }
 
-        public void DrawAvatars(Rectangle avatarRect)
+        public void DrawAvatars(bool centered = false)
         {
-            var p = 0;
+            var p = 0; 
+
+
             for (var player = 0; player < Players.Count; player++)
             {
                 if (Players[player].Name != mainGame.online.CurrentUser)
                 {
-                    var pos = avatarRect;
-                    pos.X += p++ * (avatarWidth + 10);
-                    pos.Width = avatarWidth;
+                    var pos = Players[player].Position;                    ;                    
                     spriteBatch.Draw(Players[player].Avatar, pos, Color.White);
                 }
             }
