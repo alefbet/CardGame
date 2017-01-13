@@ -53,7 +53,7 @@ namespace WordGame
         ScoreBoardService scoreSvc;
         SocialService socialSvc;
 
-        public string CurrentUser
+        public string LocalUser
             {
                 get
             {
@@ -106,7 +106,7 @@ namespace WordGame
             {
                 try
                 {
-                    WarpClient.GetInstance().Connect(CurrentUser);
+                    WarpClient.GetInstance().Connect(LocalUser);
                 }
                 catch (Exception e)
                 {
@@ -157,9 +157,9 @@ namespace WordGame
 
 #if WINDOWS_UAP
             var c = new OnSaveScoreCallback();
-            scoreSvc.SaveUserScore(Level, CurrentUser, Score, c);
+            scoreSvc.SaveUserScore(Level, LocalUser, Score, c);
 #else
-            Game game = scoreSvc.SaveUserScore(Level, CurrentUser, Score);
+            Game game = scoreSvc.SaveUserScore(Level, LocalUser, Score);
 #endif
 
             return true;
@@ -167,7 +167,7 @@ namespace WordGame
 
         public void Connect()
         {
-            WarpClient.GetInstance().Connect(CurrentUser);
+            WarpClient.GetInstance().Connect(LocalUser);
 
         } 
 
@@ -240,7 +240,7 @@ namespace WordGame
                     break;
                 case (WarpResponseResultCode.RESOURCE_NOT_FOUND):
                     Debug.WriteLine("Room not found, try to create");
-                    WarpClient.GetInstance().CreateRoom("PlayNow", CurrentUser, 4, null);
+                    WarpClient.GetInstance().CreateRoom("PlayNow", LocalUser, 4, null);
                     break;
                 default:
                     Debug.WriteLine("GetLiveRoom Info: " + eventObj.getData() + eventObj.getResult());

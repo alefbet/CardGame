@@ -44,18 +44,22 @@ namespace WordGame
         public ContentManager Content;        
         public MainGame mainGame;
 
-        public enum MultiplayerGameState { Connecting, WaitingForPlayers, WaitingForStart, Starting, CurrentPlayerTurn, OtherPlayerTurn, EndOfGame }
+        public enum MultiplayerGameState { Connecting, WaitingForPlayers, WaitingForStart, Starting, CurrentPlayerTurn, OtherPlayerTurn, BetweenRounds, EndOfGame }
 
         public MultiplayerGameState gameState { get; set; }
         //private Table table;
 
         public int CurrentRound = 3;
+        public bool HasDrawn = false;
+
         const int MaxRound = 10;        
 
         public List<Player> Players;
 
         
         public string CurrentPlayer;
+        
+
         public string HostPlayer;
 
         public int PlayerIndex (string PlayerName)
@@ -105,6 +109,7 @@ namespace WordGame
         public Slot drawSlot { get; set; }
 
         public Slot discardSlot { get; set; }
+        public Card discardCard { get; set; }
 
         public Stack cardsInHand { get; set; }
         public Slot cardsInHandSlot { get; set; }
@@ -308,10 +313,10 @@ namespace WordGame
         void SetupLocalGame(int otherPlayers = 1)
         {
             OnRoomJoinEventArgs newRoom = new OnRoomJoinEventArgs();
-            newRoom.RoomOwner = mainGame.online.CurrentUser;
+            newRoom.RoomOwner = mainGame.online.LocalUser;
             newRoom.RoomId = "localTest";
             var player2 = Guid.NewGuid().ToString();
-            newRoom.Users = new string[] { mainGame.online.CurrentUser};
+            newRoom.Users = new string[] { mainGame.online.LocalUser};
             OnGetInitialRoomState(this, newRoom);
             UserJoined(this, player2);
         }
@@ -366,8 +371,19 @@ namespace WordGame
 
         private void OnReceivedMove(object sender, string e)
         {
-            throw new NotImplementedException();
+            switch (gameState)
+            {
+                case MultiplayerGameState.OtherPlayerTurn:
+                    // did other use draw from deck or discard pile
+                    break;
+                case MultiplayerGameState.BetweenRounds:
+                    // any challenges of words?
+                    break;
+            }
+                
         }
+
+
 
         private async void OnGetInitialRoomState(object sender, OnRoomJoinEventArgs e)
         {
@@ -401,6 +417,37 @@ namespace WordGame
 
         void UpdatePlayersPositions()
         {
+            var startIndex = PlayerIndex(mainGame.online.LocalUser);
+            int count = 0;
+            var mid = (exitRect.Left - cardsInHandSlot.Border.Right) / 2 + cardsInHandSlot.Border.Right;
+            for (int i=startIndex; i < startIndex + Players.Count; i++)
+            {
+                var p = Players[i % Players.Count];
+                switch (count) 
+                { 
+                    case 0:
+                        p.Position = new Vector2(mid - avatarWidth / 2, cardsInHandSlot.Border.Top);
+                    break;
+
+                    case 1:
+                        if (Players.Count == 2)
+                            p.Position = new Vector2(mid - avatarWidth / 2, cardsInHandSlot.Border.Top + avatarWidth + font.LineSpacing  + 10);
+                        else
+                            p.Position = new Vector2(mid - (avatarWidth + 20), cardsInHandSlot.Border.Top + avatarWidth + font.LineSpacing + 10);
+
+                        break;
+                    
+                    case 2:
+                        p.Position = new Vector2(mid + (20), cardsInHandSlot.Border.Top + avatarWidth + font.LineSpacing + 10);
+                        break;
+                    
+                    case 3:
+                        p.Position = new Vector2(mid - avatarWidth / 2, cardsInHandSlot.Border.Top + 2 * (avatarWidth + 10 + font.LineSpacing));
+                        break;
+                }
+                Debug.WriteLine("Player " + i + " Pos " + p.Position);
+                count++;
+            }
 
         }
 
@@ -439,7 +486,7 @@ namespace WordGame
         {
             var xBufferForDragDrop = 20;
             
-            if (CurrentPlayer == mainGame.online.CurrentUser)
+            if (CurrentPlayer == mainGame.online.LocalUser)
             {
                 gameState = MultiplayerGameState.CurrentPlayerTurn;
             }
@@ -461,7 +508,7 @@ namespace WordGame
                     var moveCard = drawPile.drawCard();
                     moveCard.Position = drawSlot.Position;
 
-                    bool isCurrentUser = Players[player].Name == mainGame.online.CurrentUser;
+                    bool isCurrentUser = Players[player].Name == mainGame.online.LocalUser;
                     
                     moveCard.isFaceUp = isCurrentUser;
                     moveCard.IsDraggable = isCurrentUser;
@@ -475,9 +522,7 @@ namespace WordGame
                     }
                     else
                     {                        
-                        pos = otherPlayersRect.Location.ToVector2();
-                        
-                        pos.X += (p++ * (10 + avatarWidth) + 6f);
+                        pos = Players[player].Position;                                                
 
                     }
 
@@ -499,6 +544,13 @@ namespace WordGame
             int y = 10;
             y += slotTex.Height + y;
 
+            discardCard = drawPile.drawCard();
+            
+            tween.Tween(discardCard, new { Position = drawSlot.Position}, 7, delay)
+                        .Ease(Ease.CubeOut)
+                        .OnComplete(afterAnimateDrawCard);
+
+
 
 
             var restackAnimation = drawPile.topCard();
@@ -508,6 +560,12 @@ namespace WordGame
             if (!muteSound) soundFX[playSound].Play();
 
 
+        }
+
+        private void afterAnimateDrawCard()
+        {
+            discardCard.isFaceUp = true;
+            afterAnimate();
         }
 
         public void SetTable()
@@ -535,7 +593,7 @@ namespace WordGame
 
             foreach (var p in Players)
             {                
-                if (p.Name == mainGame.online.CurrentUser)
+                if (p.Name == mainGame.online.LocalUser)
                 {
                     //p.Hand = cardsInHand;                    
                 }
@@ -862,6 +920,7 @@ namespace WordGame
                 case MultiplayerGameState.OtherPlayerTurn:
 
                     base.Draw(gameTime);
+                    discardCard.Draw(gameTime);
                     break;
 
             }
@@ -904,16 +963,25 @@ namespace WordGame
 
         public void DrawAvatars(bool centered = false)
         {
-            var p = 0; 
+            var p = 0;
 
-
-            for (var player = 0; player < Players.Count; player++)
+            var i = PlayerIndex(mainGame.online.LocalUser);
+            for (var player = i ; player < Players.Count + i; player++)
             {
-                if (Players[player].Name != mainGame.online.CurrentUser)
-                {
-                    var pos = Players[player].Position;                    ;                    
-                    spriteBatch.Draw(Players[player].Avatar, pos, Color.White);
-                }
+                Vector2 pos;
+                if (centered)
+                    pos = new Vector2(MainGame.MID_WIDTH - ((Players.Count - p) /2) * (avatarWidth + 50), 400);
+                else
+                    pos = Players[player % Players.Count].Position;                  
+                spriteBatch.Draw(Players[player % Players.Count].Avatar, pos, Color.White);
+
+                Rectangle labelRect;
+                
+                labelRect = new Rectangle((int) pos.X, (int) pos.Y + avatarWidth + 10, avatarWidth, font.LineSpacing);
+
+                Util.DrawString(spriteBatch, font, player == i ? "Me" : "Challenger", labelRect, Util.Alignment.Center, Color.White);
+
+                p++;
             }
         }
     }
