@@ -246,14 +246,14 @@ namespace WordGame
             discardSlot = new Slot(slotTex, spriteBatch)
             {
                 name = "Discard",
-                Position = new Vector2(2 * (x + slotTex.Width), y),
+                Position = new Vector2(2* x + slotTex.Width, y),
                 stack = null
             };
             
 
             cardsInHandSlot = new Slot(playingAreaTex, spriteBatch)
             {
-                Position = new Vector2((x + slotTex.Width) * 2, y),
+                Position = new Vector2((x + slotTex.Width) * 2 + x, y),
                 name = "Cards In Hand"
 
             };
@@ -293,6 +293,7 @@ namespace WordGame
         public void NewGame()
         {
             //
+            Debug.WriteLine("Connecting..." + mainGame.online.LocalUser);
             Players = new List<Player>();
 
             gameState = MultiplayerGameState.Connecting;
@@ -306,7 +307,7 @@ namespace WordGame
 
 #if DEBUG
 
-            SetupLocalGame();
+            //SetupLocalGame();
 #endif            
             SetTable();
         }
@@ -546,7 +547,7 @@ namespace WordGame
 
             discardCard = drawPile.drawCard();
             
-            tween.Tween(discardCard, new { Position = drawSlot.Position}, 7, delay)
+            tween.Tween(discardCard, new { Position = discardSlot.Position}, 7, delay)
                         .Ease(Ease.CubeOut)
                         .OnComplete(afterAnimateDrawCard);
 
@@ -617,12 +618,7 @@ namespace WordGame
         }
 
         private void addAndSetFaceUp(Card c, Stack s)
-        {
-            if (s.Count > 0)
-            {
-                s.topCard().isFaceUp = false;
-                s.topCard().IsDraggable = false;
-            }
+        {            
             s.addCard(c, true);            
             c.isFaceUp = true;
             c.IsDraggable = true;
@@ -767,6 +763,7 @@ namespace WordGame
                     overlayString = "Starting \nSelecting first dealer...";
                     break;
                 case MultiplayerGameState.OtherPlayerTurn:
+
                 case MultiplayerGameState.CurrentPlayerTurn:
                     drawOverlay = false;
                     
@@ -808,10 +805,20 @@ namespace WordGame
                                 }
                                 break;
                             case MultiplayerGameState.CurrentPlayerTurn:
-                                if (drawSlot.Contains(point.ToVector2()))
+                                if (!HasDrawn)
                                 {
-                                    SelectFromDeck();
-                                    break;
+                                    if (drawSlot.Contains(point.ToVector2()))
+                                    {
+                                        SelectFromDeck();
+                                        HasDrawn = true;
+                                        break;
+                                    }
+                                    else if (discardSlot.Contains(point.ToVector2()))
+                                    {
+                                        SelectFromDiscard();
+                                        HasDrawn = true;
+                                        break;
+                                    }
                                 }
                                 break;
 
@@ -864,9 +871,27 @@ namespace WordGame
                     .OnBegin(() => addAndSetFaceUp(moveCard, stack))
                     .OnComplete(afterAnimate)
                     .Ease(Ease.CubeOut);
-                                        
+
+            mainGame.online.DrawMade("Drawpile");            
         }
-                
+
+        private void SelectFromDiscard()
+        {
+            var moveCard = discardCard;
+            var stack = cardsInHand;
+
+            moveCard.snapPosition = new Vector2(stack.slot.Position.X + (stackOffsetHorizontal * (stack.Count + 1)), stack.slot.Position.Y);
+            // stack.addCard(moveCard, true);
+            moveCard.Position = drawSlot.Position;
+            tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 7, 0)
+                .OnBegin(() => addAndSetFaceUp(moveCard, stack))
+                .OnComplete(afterAnimate)
+                .Ease(Ease.CubeOut);
+
+            mainGame.online.DrawMade("Discard");
+        }
+
+
 
         private void afterScoreCardAnimate(Card card)
         {
@@ -920,6 +945,7 @@ namespace WordGame
                 case MultiplayerGameState.OtherPlayerTurn:
 
                     base.Draw(gameTime);
+                    discardSlot.Draw(gameTime);
                     discardCard.Draw(gameTime);
                     break;
 

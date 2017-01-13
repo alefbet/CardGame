@@ -79,7 +79,9 @@ namespace WordGame
                 }
 }
 #else
-                user = Plugin.Settings.CrossSettings.Current.GetValueOrDefault("UserName", Guid.NewGuid().ToString());
+
+                
+                user = Plugin.Settings.CrossSettings.Current.GetValueOrDefault("UserName", Guid.NewGuid().ToString().Substring(15));                                
                 Plugin.Settings.CrossSettings.Current.AddOrUpdateValue("UserName", user);
 #endif
                 return user;
@@ -151,6 +153,10 @@ namespace WordGame
             }
         }
                        
+        public void DrawMade(string DrawObject)
+        {
+            WarpClient.GetInstance().SendChat(DrawObject);
+        }
 
         public bool SubmitScore(string Level, int Score)
         {
@@ -416,7 +422,8 @@ namespace WordGame
 
         public void onSendChatDone(byte result)
         {
-            throw new NotImplementedException();
+            Debug.WriteLine("Sent draw info {" + result.ToString() + "}");
+            
         }
 
         public void onSendPrivateChatDone(byte result)
