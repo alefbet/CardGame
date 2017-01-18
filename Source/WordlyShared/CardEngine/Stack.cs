@@ -219,7 +219,38 @@ namespace MonoGame.Ruge.CardEngine {
             if (update) UpdatePositions();
         }
 
-       
+        public void insertCardBefore(Card card, Card insertBefore, bool update = false)
+        {
+            if (card.stack != null)
+            {
+                card.stack.cards.Remove(card);
+                card.stack.NukeParents(card);
+            }
+            card.stack = this;
+
+
+            int indexOfinsertAfter = cards.IndexOf(insertBefore);
+
+
+
+            //if (indexOfinsertAfter != 0)
+            //{ 
+            //    card.Child = cards[indexOfinsertAfter].Child;                
+            //}
+            //cards[indexOfinsertAfter].Child = card;
+            cards.Insert(indexOfinsertAfter, card);
+
+            card.ZIndex = indexOfinsertAfter;
+
+
+            int i = 1;
+
+            foreach (var fixIndex in cards) fixIndex.ZIndex = i++;
+
+            if (update) UpdatePositions();
+        }
+
+
         public void insertCardAfter(Card card, Card insertAfter, bool update=false)
         {
             if (card.stack != null)
@@ -238,7 +269,7 @@ namespace MonoGame.Ruge.CardEngine {
             //    card.Child = cards[indexOfinsertAfter].Child;                
             //}
             //cards[indexOfinsertAfter].Child = card;
-            cards.Insert(indexOfinsertAfter, card);
+            cards.Insert(indexOfinsertAfter+1, card);
 
             card.ZIndex = indexOfinsertAfter + 1;
 

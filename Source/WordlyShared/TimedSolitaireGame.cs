@@ -464,13 +464,14 @@ namespace WordGame
             animationCount = 0;
         }
 
-        private void afterAnimateCardToPlayWord(Card card, Stack stack)
+        private void afterAnimateCardToPlayWord(Card card, Stack stack, bool decrementCount = false)
         {
             card.ZIndex -= ON_TOP;
             card.isSnapAnimating = false;
             card.IsSelected = false;
             card.allowsSelection = true;
-            cardsAnimatingToWord--;
+            if (decrementCount)
+                cardsAnimatingToWord--;                       
             if (stack.Count == 0)
                 card.MoveToEmptyStack(stack);
             else
@@ -482,7 +483,7 @@ namespace WordGame
 
         private void afterAnimatePlayCardToEmptyStack(Card card, Stack stack)
         {
-            afterAnimateCardToPlayWord(card, stack);
+            afterAnimateCardToPlayWord(card, stack, false);
             if (card.previousStack.Count > 0)
             {
                 card.previousStack.topCard().isFaceUp = true;
@@ -745,7 +746,7 @@ namespace WordGame
         {
             if (!postedGameScores)
             {
-                mainGame.online.SubmitScore("Timed Hard", TotalScore);                
+                mainGame.online.SubmitScore("Timed - Hard", TotalScore);                
                 postedGameScores = true;
             }
         }
@@ -899,7 +900,7 @@ namespace WordGame
         {
 
             Vector2 pos = currentWordStack.slot.Position;
-            pos.X += (currentWordStack.Count + cardsAnimatingToWord++) * stackOffsetHorizontal;
+            pos.X += (currentWordStack.Count + cardsAnimatingToWord) * stackOffsetHorizontal;
             
             
             animationCount++;
@@ -909,8 +910,9 @@ namespace WordGame
             topCard.allowsSelection = true;
             tween.Tween(topCard, new { Position = pos }, 3)
                 .Ease(Ease.CubeInOut)
-                .OnComplete(() => afterAnimateCardToPlayWord(topCard, currentWordStack));
-            
+                .OnComplete(() => afterAnimateCardToPlayWord(topCard, currentWordStack, true));
+
+            cardsAnimatingToWord++;
         }
 
         private void PlayCardToEmptyStack(Card topCard, Stack emptyStack)

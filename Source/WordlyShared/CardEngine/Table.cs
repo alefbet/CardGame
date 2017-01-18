@@ -151,7 +151,7 @@ namespace MonoGame.Ruge.CardEngine {
         public void ProcessDrag(Point point, GestureSample gesture, GameTime gameTime)
         {
 
-            var items = dragonDrop.dragItems.OrderBy(z => z.ZIndex).ToList();
+            var items = dragonDrop.dragItems.OrderByDescending(z => z.ZIndex).ToList();
             
             switch (gesture.GestureType)
             {
@@ -160,6 +160,7 @@ namespace MonoGame.Ruge.CardEngine {
                 case GestureType.VerticalDrag:
                     if (dragonDrop.selectedItem != null)
                     {
+                        dragonDrop.LastTouchDragLocation = point;
                         dragonDrop.selectedItem.ProcessDrag(point, gesture, gameTime);                        
                     }
                     else
@@ -172,7 +173,9 @@ namespace MonoGame.Ruge.CardEngine {
                                 item.OnSelected();
                                 item.ZIndex += ON_TOP;
                                 dragonDrop.selectedItem = item;
+                                dragonDrop.LastTouchDragLocation = point;
                                 item.ProcessDrag(point, gesture, gameTime);
+                                
                                 break;
                             }
                         }
@@ -187,7 +190,8 @@ namespace MonoGame.Ruge.CardEngine {
 
                         if (collusionItem != null)
                         {
-                            dragonDrop.selectedItem.OnCollusion(collusionItem, point);
+
+                            dragonDrop.selectedItem.OnCollusion(collusionItem, dragonDrop.LastTouchDragLocation);
                             collusionItem.Update(gameTime);
                         }
 

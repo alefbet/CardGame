@@ -297,17 +297,16 @@ namespace WordGame
             Players = new List<Player>();
 
             gameState = MultiplayerGameState.Connecting;
+
+#if DEBUG                        
+            SetupLocalGame();
+#else
             mainGame.online.Connect();
             mainGame.online.GetInitialRoomState += OnGetInitialRoomState;
             mainGame.online.UserJoined += UserJoined;
             mainGame.online.UserLeft += UserLeft;
             mainGame.online.RoomStateChanged += OnRoomStateChanged;
             mainGame.online.RecievedGameMessage += OnReceivedMove;
-            
-
-#if DEBUG
-
-            //SetupLocalGame();
 #endif            
             SetTable();
         }
@@ -399,10 +398,10 @@ namespace WordGame
 
             Players.Clear();
             foreach (string user in e.Users)
-            {
-                Debug.WriteLine("Initializing room: " + e.RoomId + "  User: " + user);
+            {                
                 var playerAvatar = await Util.GetWebImageAsStream("https://api.adorable.io/avatars/" + avatarWidth + "/wordly-" + user);
-                Players.Add(new Player() { Name = user, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });                
+                Players.Add(new Player() { Name = user, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
+                Debug.WriteLine("Initializing room: " + e.RoomId + "  User: " + user);
             }
             HostPlayer = e.RoomOwner;
 
@@ -414,6 +413,8 @@ namespace WordGame
             var playerAvatar = await Util.GetWebImageAsStream("https://api.adorable.io/avatars/" + avatarWidth + "/wordly-" + user);
             Players.Add(new Player() { Name = user, Avatar = Texture2D.FromStream(mainGame.GraphicsDevice, playerAvatar) });
             UpdatePlayersPositions();
+
+            Debug.WriteLine("Added user: " + user);
         }
 
         void UpdatePlayersPositions()
@@ -513,8 +514,8 @@ namespace WordGame
                     
                     moveCard.isFaceUp = isCurrentUser;
                     moveCard.IsDraggable = isCurrentUser;
+                    moveCard.ZIndex += ON_TOP;
 
-                    
                     if (isCurrentUser)
                     {
                         pos = cardsInHand.slot.Position;
@@ -534,7 +535,7 @@ namespace WordGame
 
                     tween.Tween(moveCard, new { Position = pos, Rotation = rotation, Scale = scale }, 7, delay)
                         .Ease(Ease.CubeOut)
-                        .OnComplete(afterAnimate);
+                        .OnComplete( () => afterAnimate(moveCard));
                     Debug.WriteLine("player: " + player + " card: " + c + " delay: " + delay + " p: " + p);
                     delay += 3;
                 }
@@ -560,13 +561,13 @@ namespace WordGame
             restackAnimation.snapTime = 4.5f;
             if (!muteSound) soundFX[playSound].Play();
 
-
+            debug();
         }
 
         private void afterAnimateDrawCard()
         {
             discardCard.isFaceUp = true;
-            afterAnimate();
+            afterAnimate(discardCard);
         }
 
         public void SetTable()
@@ -631,12 +632,11 @@ namespace WordGame
             c.IsDraggable = false;
         }
 
-        private void afterAnimate()
+        private void afterAnimate(Card c)
         {
-
+            c.ZIndex -= ON_TOP;
             animationCount--;
-            // todo cleanup this sound stuff
-
+            // todo cleanup this sound stuff            
             if (!muteSound) soundFX[playSound].Play();
         }
 
@@ -707,8 +707,10 @@ namespace WordGame
                 
                 Debug.WriteLine("OnCollusion: " + card.suit.ToString() + " : " + " Card " + destination.suit.ToString() + ": " + destination.stack.name);
 
-                if (destination.stack.type == StackType.play)            
+                if (e.point.X > destination.Border.Center.X)
                     PlayCardAfterCard(card, destination);
+                else
+                    PlayCardBeforeCard(card, destination);
             }
             else if (type == typeof(Slot))
             {
@@ -869,7 +871,7 @@ namespace WordGame
                 moveCard.Position = drawSlot.Position;
                 tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 7, 0)
                     .OnBegin(() => addAndSetFaceUp(moveCard, stack))
-                    .OnComplete(afterAnimate)
+                    .OnComplete(() => afterAnimate(moveCard))
                     .Ease(Ease.CubeOut);
 
             mainGame.online.DrawMade("Drawpile");            
@@ -885,7 +887,7 @@ namespace WordGame
             moveCard.Position = drawSlot.Position;
             tween.Tween(moveCard, new { Position = moveCard.snapPosition }, 7, 0)
                 .OnBegin(() => addAndSetFaceUp(moveCard, stack))
-                .OnComplete(afterAnimate)
+                .OnComplete( () => afterAnimate(moveCard))
                 .Ease(Ease.CubeOut);
 
             mainGame.online.DrawMade("Discard");
@@ -903,14 +905,23 @@ namespace WordGame
 
        
 
+        private void PlayCardBeforeCard(Card card, Card destination)
+        {
+            
+            destination.stack.insertCardBefore(card, destination, true);
+            //card.SetParent(destination);                
+            destination.stack.debug();
+            
+        }
+
         private void PlayCardAfterCard(Card card, Card destination)
         {
-            if (destination.stack == cardsInHand)
-            {
-                cardsInHand.insertCardAfter(card, destination, true);
-                //card.SetParent(destination);                
-            }
+
+            destination.stack.insertCardAfter(card, destination, true);
+            //card.SetParent(destination);                
+            destination.stack.debug();
         }
+
 
         private void PlayCardToEndOfCurrentWord(Card topCard)
         {

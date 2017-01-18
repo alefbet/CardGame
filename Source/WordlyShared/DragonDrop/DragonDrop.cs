@@ -61,6 +61,9 @@ namespace MonoGame.Ruge.DragonDrop {
 
             }
         }
+        
+        public Point LastTouchDragLocation { get; set; }
+        
 
         public void debug()
         {
@@ -79,6 +82,7 @@ namespace MonoGame.Ruge.DragonDrop {
                         var strFaceUp = (card.isFaceUp ? "face up" : "face down");
                         str += " z" + card.ZIndex.ToString("00") + ": " + card.rank + " of " + card.suit + " (" + strFaceUp + ")";
                         str += " pos: (" + card.Position.X + ", " + card.Position.Y + ")";
+                        str += " stack: " + card.stack.name;
                         break;
                     case "Slot":
                         var slot  = (CardEngine.Slot)(object) item;                                                

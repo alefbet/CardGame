@@ -81,7 +81,8 @@ namespace WordGame
 #else
 
                 
-                user = Plugin.Settings.CrossSettings.Current.GetValueOrDefault("UserName", Guid.NewGuid().ToString().Substring(15));                                
+                user = Plugin.Settings.CrossSettings.Current.GetValueOrDefault("UserName", Guid.NewGuid().ToString().Substring(15));
+                
                 Plugin.Settings.CrossSettings.Current.AddOrUpdateValue("UserName", user);
 #endif
                 return user;
@@ -342,7 +343,13 @@ namespace WordGame
 
         public void onChatReceived(ChatEvent eventObj)
         {
-            throw new NotImplementedException();
+            if (eventObj.getSender() != LocalUser)
+            {
+                // Received Message
+                var message = eventObj.getMessage();
+
+
+            }
         }
 
         public void onUpdatePeersReceived(UpdateEvent eventObj)
